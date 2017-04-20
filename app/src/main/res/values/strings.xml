@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Elevator Room</string>
+    <string name="lobby">Lobby</string>
+    <string name="floor_n">Floor %1$d</string>
+    <string name="elevator">Elevator</string>
+</resources>
