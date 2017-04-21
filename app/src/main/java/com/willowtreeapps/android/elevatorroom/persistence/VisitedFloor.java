@@ -3,10 +3,12 @@ package com.willowtreeapps.android.elevatorroom.persistence;
 import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
 
+import static com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor.TABLE;
+
 /**
  * Created by willowtree on 4/21/17.
  */
-@Entity
+@Entity(tableName = TABLE)
 public class VisitedFloor {
     public static final String TABLE = "VisitedFloor";
 
