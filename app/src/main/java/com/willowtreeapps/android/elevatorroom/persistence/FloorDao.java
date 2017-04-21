@@ -19,6 +19,6 @@ public interface FloorDao {
     VisitedFloor loadCurrentFloor();
 
     @Insert
-    void insertUser(VisitedFloor floor);
+    void insertFloor(VisitedFloor floor);
 
 }
