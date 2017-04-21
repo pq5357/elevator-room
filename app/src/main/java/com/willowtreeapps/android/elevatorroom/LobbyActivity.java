@@ -29,7 +29,9 @@ public class LobbyActivity extends LifecycleActivity {
 
     @OnClick(R.id.btn_launch)
     public void launchElevator() {
-        startActivity(new Intent(this, ElevatorActivity.class));
+        Intent intent = new Intent(this, ElevatorActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT); //Launch in adjacent MultiWindow
+        startActivity(intent);
     }
 
     @Override

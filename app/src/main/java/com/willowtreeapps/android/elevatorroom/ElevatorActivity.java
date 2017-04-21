@@ -16,7 +16,7 @@ public class ElevatorActivity extends LifecycleActivity {
         final TextView textview = (TextView) findViewById(R.id.textview);
         textview.setText("elevator!");
 
-        BarometerManager barometerManager = BarometerManager.getInstance();
+        BarometerManager barometerManager = BarometerManager.getInstance(this);
         barometerManager.observe(this, new Observer<Float>() {
             @Override
             public void onChanged(@Nullable Float aFloat) {
