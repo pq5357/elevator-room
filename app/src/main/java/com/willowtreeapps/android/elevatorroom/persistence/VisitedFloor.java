@@ -12,19 +12,19 @@ import static com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor.T
 public class VisitedFloor {
     public static final String TABLE = "VisitedFloor";
 
-    @PrimaryKey
-    private int id;
+    @PrimaryKey(autoGenerate = true)
+    private long id;
     private int floor;
 
     public VisitedFloor(int floor) {
         this.floor = floor;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
