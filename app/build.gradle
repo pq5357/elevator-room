@@ -29,6 +29,7 @@ dependencies {
 
     compile "com.android.support.lifecycle:extensions:1.0-SNAPSHOT"
     compile "com.android.support.room:runtime:1.0-SNAPSHOT"
+    compile "com.android.support.room:rxjava2:1.0-SNAPSHOT"
 
     compile 'com.jakewharton.timber:timber:4.5.1'
     compile 'com.jakewharton:butterknife:8.5.1'
