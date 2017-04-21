@@ -13,20 +13,15 @@ import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
-/**
- * Created by willowtree on 4/20/17.
- */
-
-public class BarometerManager implements LifecycleObserver {
+public class BarometerManager extends LiveData<Float> {
 
     private static BarometerManager sInstance;
-    private LiveData<Float> data = new LiveData<>();
     private SensorManager sensorManager;
 
-    private SensorEventListener pressureListener = new SensorEventListener() {
+    SensorEventListener pressureListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            data.setValue(event.values[0]);
+            setValue(event.values[0]);
         }
 
         @Override
@@ -34,31 +29,28 @@ public class BarometerManager implements LifecycleObserver {
         }
     };
 
-    public void observe(LifecycleOwner owner, Observer<Float> observer){
-        data.observe(owner, observer);
-    }
-
-    private BarometerManager(LifecycleOwner owner) {
-        owner.getLifecycle().addObserver(this);
+    private BarometerManager() {
         sensorManager = (SensorManager) MyApplication.getContext().getSystemService(Service.SENSOR_SERVICE);
     }
 
-    public static BarometerManager getInstance(LifecycleOwner lifecycleOwner) {
+    public static BarometerManager getInstance() {
         if (sInstance == null) {
-            sInstance = new BarometerManager(lifecycleOwner);
+            sInstance = new BarometerManager();
         }
         return sInstance;
     }
 
-    @OnLifecycleEvent(Lifecycle.ON_RESUME)
-    protected void register() {
+    @Override
+    protected void onActive() {
+        super.onActive();
         sensorManager.registerListener(pressureListener,
                 sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),
                 SensorManager.SENSOR_DELAY_GAME);
     }
 
-    @OnLifecycleEvent(Lifecycle.ON_PAUSE)
-    protected void unregister() {
+    @Override
+    protected void onInactive() {
+        super.onInactive();
         sensorManager.unregisterListener(pressureListener);
     }
 

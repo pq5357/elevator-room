@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.Observer;
+import com.android.support.lifecycle.ViewModelProviders;
 
 public class ElevatorActivity extends LifecycleActivity {
 
@@ -15,9 +16,8 @@ public class ElevatorActivity extends LifecycleActivity {
         setContentView(R.layout.activity_elevator);
         final TextView textview = (TextView) findViewById(R.id.textview);
         textview.setText("elevator!");
-
-        BarometerManager barometerManager = BarometerManager.getInstance(this);
-        barometerManager.observe(this, new Observer<Float>() {
+        ElevatorViewModel model = ViewModelProviders.of(this).get(ElevatorViewModel.class);
+        model.barometer.observe(this, new Observer<Float>() {
             @Override
             public void onChanged(@Nullable Float aFloat) {
                 textview.setText("Pressure: " + aFloat.toString());
