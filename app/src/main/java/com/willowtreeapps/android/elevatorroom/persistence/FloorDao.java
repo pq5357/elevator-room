@@ -1,8 +1,8 @@
 package com.willowtreeapps.android.elevatorroom.persistence;
 
-import com.android.support.room.Dao;
-import com.android.support.room.Insert;
-import com.android.support.room.Query;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.Query;
 
 import java.util.List;
 

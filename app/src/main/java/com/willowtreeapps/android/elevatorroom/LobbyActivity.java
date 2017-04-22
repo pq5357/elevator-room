@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.android.support.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.LifecycleActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

@@ -6,12 +6,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import com.android.support.lifecycle.Lifecycle;
-import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleOwner;
-import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.OnLifecycleEvent;
 
 public class BarometerManager extends LiveData<Float> {
 
