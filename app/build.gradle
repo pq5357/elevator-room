@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "com.willowtreeapps.android.elevatorroom"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -29,6 +29,7 @@ dependencies {
 
     compile "android.arch.lifecycle:extensions:1.0-SNAPSHOT"
     compile "android.arch.persistence.room:runtime:1.0-SNAPSHOT"
+    compile "android.arch.persistence.room:rxjava2:1.0-SNAPSHOT"
 
     compile 'com.jakewharton.timber:timber:4.5.1'
     compile 'com.jakewharton:butterknife:8.5.1'

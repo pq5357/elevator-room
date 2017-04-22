@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+##############################################################################
+##
+##  Pull sqlite db off of device
+##
+##############################################################################
+
+PACKAGE_NAME="com.willowtreeapps.android.elevatorroom"
+DB_NAME="game.db"
+
+mkdir ~/sqlite-dump
+adb -d shell "mkdir /sdcard/sqlite-dump"
+adb -d shell "run-as ${PACKAGE_NAME} cp databases/${DB_NAME} /sdcard/sqlite-dump"
+cd ~/sqlite-dump
+adb pull /sdcard/sqlite-dump
