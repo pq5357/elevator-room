@@ -4,9 +4,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.widget.TextView;
 
-import com.android.support.lifecycle.LifecycleActivity;
-import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelProviders;
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 
 public class ElevatorActivity extends LifecycleActivity {
 
