@@ -1,7 +1,7 @@
 package com.willowtreeapps.android.elevatorroom;
 
-import com.android.support.lifecycle.ViewModel;
-import com.android.support.room.Room;
+import android.arch.lifecycle.ViewModel;
+import android.arch.persistence.room.Room;
 import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 

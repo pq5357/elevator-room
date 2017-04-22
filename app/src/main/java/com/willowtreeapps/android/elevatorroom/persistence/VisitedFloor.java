@@ -1,7 +1,7 @@
 package com.willowtreeapps.android.elevatorroom.persistence;
 
-import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
 import static com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor.TABLE;
 

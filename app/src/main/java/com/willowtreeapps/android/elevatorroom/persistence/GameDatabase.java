@@ -1,7 +1,7 @@
 package com.willowtreeapps.android.elevatorroom.persistence;
 
-import com.android.support.room.Database;
-import com.android.support.room.RoomDatabase;
+import android.arch.persistence.room.Database;
+import android.arch.persistence.room.RoomDatabase;
 
 /**
  * Created by willowtree on 4/21/17.
