@@ -1,9 +1,11 @@
 package com.willowtreeapps.android.elevatorroom;
 
 import android.arch.lifecycle.ViewModel;
-import android.arch.persistence.room.Room;
+
 import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
+
+import io.reactivex.Flowable;
 
 
 public class LobbyViewModel extends ViewModel {
@@ -11,13 +13,14 @@ public class LobbyViewModel extends ViewModel {
     private GameDatabase database;
 
     public LobbyViewModel() {
-        database = Room.databaseBuilder(MyApplication.getContext(),
-                GameDatabase.class, "game.db")
-                .build();
+        database = MyApplication.getGameDatabase();
     }
 
-    public VisitedFloor getCurrentFloor() {
-        return database.floorDao().loadCurrentFloor();
+    public Flowable<VisitedFloor> currentFloor() {
+        return database.currentFloor();
     }
 
+    public void fakeNew() {
+        database.floorDao().insertFloor(new VisitedFloor((int) (Math.random() * 1000)));
+    }
 }

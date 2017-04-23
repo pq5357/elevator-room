@@ -1,17 +1,11 @@
 package com.willowtreeapps.android.elevatorroom;
 
 import android.app.Service;
+import android.arch.lifecycle.LiveData;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.OnLifecycleEvent;
 
 public class BarometerManager extends LiveData<Float> {
 
