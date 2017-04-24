@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.willowtreeapps.android.elevatorroom"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.willowtreeapps.android.elevatorroom">
+
     <uses-feature android:name="android.hardware.sensor.barometer" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -10,23 +12,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".LobbyActivity"
             android:label="@string/lobby">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
-
         <activity
             android:name=".ElevatorActivity"
             android:documentLaunchMode="intoExisting"
-            android:label="@string/elevator">
-        </activity>
+            android:label="@string/elevator"></activity>
+        <activity android:name=".intro.IntroActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

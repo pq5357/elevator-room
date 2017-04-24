@@ -7,24 +7,38 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class ElevatorActivity extends LifecycleActivity {
 
     ElevatorViewModel viewModel;
+    Unbinder unbinder;
+    @BindView(R.id.textview)
+    TextView pressureText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elevator);
-        final TextView textview = (TextView) findViewById(R.id.textview);
-        textview.setText("elevator!");
+        unbinder = ButterKnife.bind(this);
         viewModel = ViewModelProviders.of(this).get(ElevatorViewModel.class);
         viewModel.writePressureToDatabase(this);
         viewModel.barometer.observe(this, new Observer<Float>() {
             @Override
             public void onChanged(@Nullable Float aFloat) {
-                textview.setText("Pressure: " + aFloat.toString());
+                pressureText.setText("Pressure: " + aFloat.toString());
             }
         });
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (unbinder != null) {
+            unbinder.unbind();
+        }
+    }
 }

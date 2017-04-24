@@ -3,4 +3,6 @@
     <string name="lobby">Lobby</string>
     <string name="floor_n">Floor %1$d</string>
     <string name="elevator">Elevator</string>
+    <string name="start">Start</string>
+    <string name="enter_multiwindow_mode_and_press_start">Enter MultiWindow Mode and Press Start</string>
 </resources>
