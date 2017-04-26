@@ -12,7 +12,7 @@ public class BarometerManager extends LiveData<Float> {
     private static BarometerManager sInstance;
     private SensorManager sensorManager;
 
-    SensorEventListener pressureListener = new SensorEventListener() {
+    private SensorEventListener pressureListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
             setValue(event.values[0]);
