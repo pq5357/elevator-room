@@ -44,7 +44,7 @@ public class LobbyActivity extends LifecycleActivity {
         floorDisposable.dispose();
         floorDisposable = viewModel.currentFloor()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloor())));
+                .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
     }
 
     @Override

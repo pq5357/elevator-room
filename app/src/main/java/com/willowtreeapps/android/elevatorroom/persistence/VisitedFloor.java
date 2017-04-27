@@ -31,4 +31,11 @@ public class VisitedFloor {
     public int getFloor() {
         return floor;
     }
+
+    public String getFloorString() {
+        if (floor == 0) {
+            return "G";
+        }
+        return Integer.toString(floor);
+    }
 }
