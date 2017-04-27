@@ -8,13 +8,17 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class BarometerManager extends LiveData<Float> {
 
     private static BarometerManager sInstance;
     private SensorManager sensorManager;
     private GroundPressure pressureListener = new GroundPressure();
+
+    final Queue<Float> pressures = new LinkedList<>();
 
     private BarometerManager() {
         sensorManager = (SensorManager) MyApplication.getContext().getSystemService(Service.SENSOR_SERVICE);
@@ -29,6 +33,14 @@ public class BarometerManager extends LiveData<Float> {
 
     public LiveData<Float> getGroundPressure() {
         return pressureListener;
+    }
+
+    private void publishAveragePressure() {
+        float sum = 0;
+        for (Float pressure : pressures) {
+            sum += pressure;
+        }
+        setValue(sum / pressures.size());
     }
 
     @Override
@@ -69,11 +81,16 @@ public class BarometerManager extends LiveData<Float> {
                         if (groundPressures.size() > 4) {
                             publishAverageGroundPressure();
                         }
+                        pressures.clear();
                     } else {
                         if (groundPressures.size() > 0) {
                             publishAverageGroundPressure();
                         }
-                        BarometerManager.this.setValue(event.values[0]);
+                        pressures.offer(event.values[0]);
+                        if (pressures.size() > 4) {
+                            pressures.poll();
+                        }
+                        publishAveragePressure();
                     }
                     break;
                 case Sensor.TYPE_ACCELEROMETER:
@@ -103,7 +120,6 @@ public class BarometerManager extends LiveData<Float> {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
-
 
         private void publishAverageGroundPressure() {
             float sum = 0;
