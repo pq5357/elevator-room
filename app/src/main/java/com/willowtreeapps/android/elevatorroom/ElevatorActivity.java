@@ -32,8 +32,8 @@ public class ElevatorActivity extends LifecycleActivity implements GameStateMana
         unbinder = ButterKnife.bind(this);
         viewModel = ViewModelProviders.of(this).get(ElevatorViewModel.class);
         viewModel.writePressureToDatabase(this);
-        viewModel.maxPressureLive.observe(this, aFloat -> {
-            if (aFloat > 0 && gameStateManager.getGameState() == CALIBRATION) {
+        viewModel.barometer.getGroundPressure().observe(this, aFloat -> {
+            if (gameStateManager.getGameState() == CALIBRATION) {
                 gameStateManager.setGameState(CAN_PLAY);
             }
         });
@@ -53,7 +53,7 @@ public class ElevatorActivity extends LifecycleActivity implements GameStateMana
     public void onStateChanged(GameStateManager.GameState newState) {
         switch (newState) {
             case PLAYING: // started playing
-                viewModel.recordMaxPressure();
+                // TODO since we don't care about state transitions, can convert GameStateManager to LiveData
                 break;
         }
     }
