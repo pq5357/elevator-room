@@ -21,4 +21,6 @@ public interface FloorDao {
     @Insert
     void insertFloor(VisitedFloor floor);
 
+    @Query("DELETE FROM " + VisitedFloor.TABLE)
+    void deleteAllFloors();
 }

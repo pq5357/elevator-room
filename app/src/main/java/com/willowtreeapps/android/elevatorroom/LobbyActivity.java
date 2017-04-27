@@ -2,7 +2,6 @@ package com.willowtreeapps.android.elevatorroom;
 
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -46,7 +44,7 @@ public class LobbyActivity extends LifecycleActivity {
         floorDisposable.dispose();
         floorDisposable = viewModel.currentFloor()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloor())));
+                .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
     }
 
     @Override
@@ -84,14 +82,6 @@ public class LobbyActivity extends LifecycleActivity {
     private void animatePerson() {
         Random random = new Random();
         person.animate().x(random.nextInt(Math.max(playField.getWidth() - person.getWidth(), 0))).y(random.nextInt(Math.max(playField.getHeight() - person.getWidth(), 0))).setDuration(2000).start();
-    }
-
-    @OnClick(R.id.btn_launch)
-    public void launchElevator() {
-        Intent lobby = new Intent(this, LobbyActivity.class);
-        Intent elevator = new Intent(this, ElevatorActivity.class);
-        elevator.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT); //Launch in adjacent MultiWindow
-        startActivities(new Intent[]{lobby, elevator});
     }
 
     @Override
