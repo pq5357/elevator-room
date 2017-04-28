@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import butterknife.BindView;
@@ -23,6 +24,7 @@ public class ElevatorActivity extends LifecycleActivity implements GameStateMana
     @BindView(R.id.textview)
     TextView messageText;
     @BindView(R.id.btn_start) Button btnStart;
+    @BindView(R.id.pressure_indicator) ProgressBar pressureIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,9 @@ public class ElevatorActivity extends LifecycleActivity implements GameStateMana
             if (gameStateManager.getGameState() == CALIBRATION) {
                 gameStateManager.setGameState(CAN_PLAY);
             }
+        });
+        viewModel.getCurrentPressurePercentage().observe(this, integer -> {
+            pressureIndicator.setProgress(integer, true);
         });
     }
 
