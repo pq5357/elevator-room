@@ -18,13 +18,13 @@
         </activity>
         <activity
             android:name=".ElevatorActivity"
-            android:documentLaunchMode="intoExisting"
-            android:label="@string/elevator"></activity>
+            android:label="@string/elevator">
+        </activity>
         <activity android:name=".intro.IntroActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
     </application>
