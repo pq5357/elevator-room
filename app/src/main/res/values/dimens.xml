@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="status_bar_height" type="dimen">24dp</item>
+    <item name="tool_bar_height" type="dimen">70dp</item>
+    <item name="floor_indicator_size" type="dimen">30dp</item>
+
+    <item name="toolbar_text_size" type="dimen">18sp</item>
+
+</resources>

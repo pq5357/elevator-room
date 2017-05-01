@@ -5,4 +5,8 @@
     <color name="colorAccent">#FF4081</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="elevator_floor_dim">#B59140</color>
+    <color name="elevator_floor_lighted">#EFDC70</color>
+    <color name="elevator_floor_border">#A36E2A</color>
+    <color name="elevator_floor_font">#4D1C09</color>
 </resources>
