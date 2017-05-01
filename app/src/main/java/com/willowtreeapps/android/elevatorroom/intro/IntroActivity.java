@@ -1,19 +1,27 @@
 package com.willowtreeapps.android.elevatorroom.intro;
 
+import android.arch.lifecycle.LifecycleActivity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 
+import com.willowtreeapps.android.elevatorroom.DisplayUtil;
 import com.willowtreeapps.android.elevatorroom.ElevatorActivity;
 import com.willowtreeapps.android.elevatorroom.LobbyActivity;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class IntroActivity extends AppCompatActivity {
+public class IntroActivity extends LifecycleActivity {
+
+    @BindView(android.R.id.content) View rootView;
+    @BindView(R.id.start) Button btnStart;
 
     Unbinder unbinder;
 
@@ -22,6 +30,17 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         unbinder = ButterKnife.bind(this);
+        checkMultiWindow();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        checkMultiWindow();
+    }
+
+    private void checkMultiWindow() {
+        btnStart.setEnabled(isInMultiWindowMode());
     }
 
     @OnClick(R.id.start)
@@ -30,8 +49,17 @@ public class IntroActivity extends AppCompatActivity {
 
         Intent lobby = new Intent(this, LobbyActivity.class);
         Intent elevator = new Intent(this, ElevatorActivity.class);
-        elevator.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT); //Launch in adjacent MultiWindow
-        startActivities(new Intent[]{lobby, elevator});
+        if (DisplayUtil.isMultiWindowPrimary(rootView)) {
+            //Launch elevator in adjacent MultiWindow
+            elevator.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            startActivities(new Intent[]{lobby, elevator});
+        } else {
+            //Launch lobby in adjacent MultiWindow
+            lobby.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            startActivities(new Intent[]{elevator, lobby});
+        }
         finish();
     }
 
