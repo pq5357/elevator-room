@@ -15,26 +15,14 @@
         android:paddingTop="@dimen/status_bar_height">
 
         <TextView
-            android:layout_width="@dimen/floor_indicator_size"
-            android:layout_height="@dimen/floor_indicator_size"
-            android:layout_margin="5dp"
+            style="@style/ElevatorIndicatorText"
             android:background="@drawable/lighted_circle"
-            android:gravity="center"
-            android:text="G"
-            android:textColor="@color/elevator_floor_font"
-            android:textSize="@dimen/toolbar_text_size"
-            android:textStyle="bold"/>
+            android:text="G"/>
 
         <TextView
-            android:layout_width="@dimen/floor_indicator_size"
-            android:layout_height="@dimen/floor_indicator_size"
-            android:layout_margin="5dp"
+            style="@style/ElevatorIndicatorText"
             android:background="@drawable/dim_circle"
-            android:gravity="center"
-            android:text="1"
-            android:textColor="@color/elevator_floor_font"
-            android:textSize="@dimen/toolbar_text_size"
-            android:textStyle="bold"/>
+            android:text="1"/>
 
     </android.support.v7.widget.Toolbar>
 
