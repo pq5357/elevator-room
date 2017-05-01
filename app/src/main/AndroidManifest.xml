@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.willowtreeapps.android.elevatorroom">
+<manifest package="com.willowtreeapps.android.elevatorroom"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-feature android:name="android.hardware.sensor.barometer" />
+    <uses-feature android:name="android.hardware.sensor.barometer"/>
 
     <application
         android:name=".MyApplication"
@@ -14,11 +14,13 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".LobbyActivity"
-            android:label="@string/lobby">
+            android:label="@string/lobby"
+            android:theme="@style/GameTheme">
         </activity>
         <activity
             android:name=".ElevatorActivity"
-            android:label="@string/elevator">
+            android:label="@string/elevator"
+            android:theme="@style/GameTheme">
         </activity>
         <activity android:name=".intro.IntroActivity">
             <intent-filter>

@@ -4,31 +4,74 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/elevator"
-    android:gravity="center"
     android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/pressure_indicator"
-        style="?android:attr/progressBarStyleHorizontal"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:layout_margin="10dp"
-        android:indeterminate="false"
-        android:max="100"/>
+        android:layout_height="@dimen/tool_bar_height"
+        android:background="@drawable/shiny_gold"
+        android:elevation="4dp"
+        android:paddingTop="@dimen/status_bar_height">
 
-    <TextView
-        android:id="@+id/textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:text=""/>
+        <TextView
+            android:layout_width="@dimen/floor_indicator_size"
+            android:layout_height="@dimen/floor_indicator_size"
+            android:layout_margin="5dp"
+            android:background="@drawable/lighted_circle"
+            android:gravity="center"
+            android:text="G"
+            android:textColor="@color/elevator_floor_font"
+            android:textSize="@dimen/toolbar_text_size"
+            android:textStyle="bold"/>
 
-    <Button
-        android:id="@+id/btn_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""/>
+        <TextView
+            android:layout_width="@dimen/floor_indicator_size"
+            android:layout_height="@dimen/floor_indicator_size"
+            android:layout_margin="5dp"
+            android:background="@drawable/dim_circle"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="@color/elevator_floor_font"
+            android:textSize="@dimen/toolbar_text_size"
+            android:textStyle="bold"/>
 
+    </android.support.v7.widget.Toolbar>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/pressure_indicator"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:indeterminate="false"
+                android:max="100"/>
+
+            <TextView
+                android:id="@+id/textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:text=""/>
+
+            <Button
+                android:id="@+id/btn_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""/>
+
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>
