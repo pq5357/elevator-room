@@ -14,16 +14,6 @@
         android:elevation="4dp"
         android:paddingTop="@dimen/status_bar_height">
 
-        <TextView
-            style="@style/ElevatorIndicatorText"
-            android:background="@drawable/lighted_circle"
-            android:text="G"/>
-
-        <TextView
-            style="@style/ElevatorIndicatorText"
-            android:background="@drawable/dim_circle"
-            android:text="1"/>
-
     </android.support.v7.widget.Toolbar>
 
     <FrameLayout
