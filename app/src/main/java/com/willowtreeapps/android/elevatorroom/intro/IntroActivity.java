@@ -13,17 +13,25 @@ import com.willowtreeapps.android.elevatorroom.LobbyActivity;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
 
+
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
+import io.reactivex.schedulers.Schedulers;
 
 public class IntroActivity extends LifecycleActivity {
 
     @BindView(android.R.id.content) View rootView;
-    @BindView(R.id.start) Button btnStart;
 
     Unbinder unbinder;
+    Disposable disposable = Disposables.disposed();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,30 +48,39 @@ public class IntroActivity extends LifecycleActivity {
     }
 
     private void checkMultiWindow() {
-        btnStart.setEnabled(isInMultiWindowMode());
+        if(isInMultiWindowMode()) {
+            startGame();
+        }
     }
 
-    @OnClick(R.id.start)
     public void startGame() {
         clearPreviousData();
+        disposable = Observable.timer(500, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.computation())
+                .subscribe(aLong -> {
+                    Intent lobby = new Intent(this, LobbyActivity.class);
+                    Intent elevator = new Intent(this, ElevatorActivity.class);
+                    if(rootView != null) {
+                        if (DisplayUtil.isMultiWindowPrimary(rootView)) {
+                            //Launch elevator in adjacent MultiWindow
+                            elevator.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                            startActivities(new Intent[]{lobby, elevator});
+                        } else {
+                            //Launch lobby in adjacent MultiWindow
+                            lobby.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                            startActivities(new Intent[]{elevator, lobby});
+                        }
+                        finish();
+                    }
+                });
 
-        Intent lobby = new Intent(this, LobbyActivity.class);
-        Intent elevator = new Intent(this, ElevatorActivity.class);
-        if (DisplayUtil.isMultiWindowPrimary(rootView)) {
-            //Launch elevator in adjacent MultiWindow
-            elevator.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            startActivities(new Intent[]{lobby, elevator});
-        } else {
-            //Launch lobby in adjacent MultiWindow
-            lobby.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            startActivities(new Intent[]{elevator, lobby});
-        }
-        finish();
     }
 
     void clearPreviousData() {
+        disposable.dispose();
         MyApplication.getGameDatabase().floorDao().deleteAllFloors();
     }
 
