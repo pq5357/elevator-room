@@ -37,6 +37,7 @@ public class ElevatorActivity extends LifecycleActivity {
     TextView messageText;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.btn_start) Button btnStart;
+    @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.pressure_indicator) ProgressBar pressureIndicator;
     private final List<TextView> floorIndicators = new ArrayList<>();
 
@@ -48,6 +49,7 @@ public class ElevatorActivity extends LifecycleActivity {
         unbinder = ButterKnife.bind(this);
         setupViews();
         gameStateManager.gameState.observe(this, this::onApplyState);
+        gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
         viewModel = ViewModelProviders.of(this).get(ElevatorViewModel.class);
         viewModel.writePressureToDatabase(this);
@@ -87,6 +89,12 @@ public class ElevatorActivity extends LifecycleActivity {
                 floorIndicators.get(i).setBackgroundResource(R.drawable.dim_circle);
             }
         }
+    }
+
+    private void updateDoors(boolean open) {
+        float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
+        doorUpper.clearAnimation();
+        doorUpper.animate().translationY(open ? -doorMovement : 0);
     }
 
     @OnClick(R.id.btn_start)
