@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -25,6 +26,7 @@ public class LobbyActivity extends LifecycleActivity {
     private Unbinder unbinder;
     private Disposable floorDisposable = Disposables.disposed();
     private LobbyViewModel viewModel;
+    private GameStateManager gameStateManager;
 
     @BindView(R.id.textview)
     TextView label;
@@ -39,12 +41,30 @@ public class LobbyActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
+        gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this);
+        gameStateManager.gameState.observe(this, this::onApplyState);
+
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
         floorDisposable.dispose();
         floorDisposable = viewModel.currentFloor()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
+    }
+
+    @OnClick(android.R.id.content)
+    protected void tappedOnLobby() {
+        gameStateManager.doorsOpen.setValue(true);
+    }
+
+    private void onApplyState(GameStateManager.GameState currentState) {
+        switch (currentState) {
+            case INIT:
+            case CALIBRATION:
+                break;
+            case PLAYING:
+                break;
+        }
     }
 
     @Override

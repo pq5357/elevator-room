@@ -15,14 +15,19 @@ import timber.log.Timber;
 public class MyApplication extends Application {
 
     private static MyApplication sApplication;
-    private static GameDatabase gameDatabase;
+    private GameDatabase gameDatabase;
+    private GameStateManager gameStateManager;
 
     public static Context getContext() {
         return sApplication;
     }
 
     public static GameDatabase getGameDatabase() {
-        return gameDatabase;
+        return sApplication.gameDatabase;
+    }
+
+    public static GameStateManager getGameStateManager() {
+        return sApplication.gameStateManager;
     }
 
     @Override
@@ -33,6 +38,7 @@ public class MyApplication extends Application {
             Timber.plant(new Timber.DebugTree());
         }
         setupDatabases();
+        gameStateManager = new GameStateManager();
     }
 
     private void setupDatabases() {

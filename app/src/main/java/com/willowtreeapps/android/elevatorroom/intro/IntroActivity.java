@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 
 import com.willowtreeapps.android.elevatorroom.DisplayUtil;
 import com.willowtreeapps.android.elevatorroom.ElevatorActivity;
@@ -13,12 +12,10 @@ import com.willowtreeapps.android.elevatorroom.LobbyActivity;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
 
-
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
