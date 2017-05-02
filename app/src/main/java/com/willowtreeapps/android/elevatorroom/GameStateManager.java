@@ -36,7 +36,7 @@ public class GameStateManager implements LifecycleObserver {
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.ON_RESUME)
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     void applyState() {
         if (stateChangeListener != null) {
             stateChangeListener.onApplyState(gameState);
@@ -50,14 +50,14 @@ public class GameStateManager implements LifecycleObserver {
         applyState();
     }
 
-    @OnLifecycleEvent(Lifecycle.ON_PAUSE)
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     void onPause() {
         if (getGameState() == GameState.CAN_PLAY) {
             setGameState(GameState.PLAYING);
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.ON_DESTROY)
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     void onDestroy() {
         lifecycleOwner.getLifecycle().removeObserver(this);
     }
