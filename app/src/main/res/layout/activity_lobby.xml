@@ -1,22 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/playfield"
-    android:background="@drawable/lobby"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/lobby"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Hello World!"/>
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tool_bar_height"
+        android:background="@drawable/shiny_gold"
+        android:elevation="4dp"
+        android:paddingTop="@dimen/status_bar_height">
 
-    <View
-        android:id="@+id/person"
-        android:background="#ff0000"
-        android:layout_width="48dp"
-        android:layout_height="48dp"/>
+        <TextView
+            android:id="@+id/textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello World!"
+            android:textColor="@color/elevator_floor_font"
+            android:textSize="@dimen/toolbar_text_size"
+            android:textStyle="bold"/>
 
-</FrameLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <FrameLayout
+        android:id="@+id/playfield"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <View
+            android:id="@+id/person"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@color/colorAccent"/>
+
+    </FrameLayout>
+
+</LinearLayout>
