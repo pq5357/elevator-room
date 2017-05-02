@@ -11,6 +11,7 @@ import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Flowable;
 import timber.log.Timber;
 
 public class ElevatorViewModel extends ViewModel {
@@ -86,6 +87,10 @@ public class ElevatorViewModel extends ViewModel {
         database.currentFloor().subscribe(floor -> currentFloor = floor);
         barometer.observe(owner, pressureObserver);
         barometer.getGroundPressure().observe(owner, groundPressureObserver);
+    }
+
+    public Flowable<VisitedFloor> currentFloor() {
+        return database.currentFloor();
     }
 
     static class Floor {
