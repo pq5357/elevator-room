@@ -5,6 +5,7 @@
     <item name="floor_indicator_size" type="dimen">30dp</item>
     <item name="elevator_door_size" type="dimen">80dp</item>
     <item name="elevator_door_movement" type="dimen">40dp</item>
+    <item name="person_size" type="dimen">48dp</item>
 
     <item name="toolbar_text_size" type="dimen">18sp</item>
 
