@@ -45,7 +45,7 @@ public class IntroActivity extends LifecycleActivity {
     }
 
     private void checkMultiWindow() {
-        if(isInMultiWindowMode()) {
+        if (isInMultiWindowMode()) {
             startGame();
         }
     }
@@ -58,7 +58,7 @@ public class IntroActivity extends LifecycleActivity {
                 .subscribe(aLong -> {
                     Intent lobby = new Intent(this, LobbyActivity.class);
                     Intent elevator = new Intent(this, ElevatorActivity.class);
-                    if(rootView != null) {
+                    if (rootView != null) {
                         if (DisplayUtil.isMultiWindowPrimary(rootView)) {
                             //Launch elevator in adjacent MultiWindow
                             elevator.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT)
@@ -79,6 +79,7 @@ public class IntroActivity extends LifecycleActivity {
     void clearPreviousData() {
         disposable.dispose();
         MyApplication.getGameDatabase().floorDao().deleteAllFloors();
+        MyApplication.getGameDatabase().personDao().deleteAllPeople();
     }
 
     @Override

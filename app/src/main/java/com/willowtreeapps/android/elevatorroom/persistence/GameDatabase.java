@@ -10,10 +10,15 @@ import io.reactivex.Flowable;
  * Created by willowtree on 4/21/17.
  */
 
-@Database(entities = VisitedFloor.class, version = 1)
+@Database(
+        entities = {VisitedFloor.class, Person.class},
+        version = 1
+)
 public abstract class GameDatabase extends RoomDatabase {
 
     public abstract FloorDao floorDao();
+
+    public abstract PersonDao personDao();
 
     public Flowable<VisitedFloor> currentFloor() {
         return RxRoom.createFlowable(this, VisitedFloor.TABLE)
