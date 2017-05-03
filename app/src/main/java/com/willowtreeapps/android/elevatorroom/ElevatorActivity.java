@@ -24,19 +24,20 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 
 import static com.willowtreeapps.android.elevatorroom.GameStateManager.GameState.CALIBRATION;
-import static com.willowtreeapps.android.elevatorroom.GameStateManager.GameState.CAN_PLAY;
+import static com.willowtreeapps.android.elevatorroom.GameStateManager.GameState.PLAYING;
 
-public class ElevatorActivity extends LifecycleActivity implements GameStateManager.StateChangeListener {
+public class ElevatorActivity extends LifecycleActivity {
 
-    ElevatorViewModel viewModel;
-    Unbinder unbinder;
-    GameStateManager gameStateManager;
+    private ElevatorViewModel viewModel;
+    private Unbinder unbinder;
+    private GameStateManager gameStateManager;
     private Disposable floorDisposable = Disposables.disposed();
 
     @BindView(R.id.textview)
     TextView messageText;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.btn_start) Button btnStart;
+    @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.pressure_indicator) ProgressBar pressureIndicator;
     private final List<TextView> floorIndicators = new ArrayList<>();
 
@@ -44,15 +45,17 @@ public class ElevatorActivity extends LifecycleActivity implements GameStateMana
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elevator);
-        gameStateManager = new GameStateManager(this, this);
+        gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this);
         setupViews();
+        gameStateManager.gameState.observe(this, this::onApplyState);
+        gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
         viewModel = ViewModelProviders.of(this).get(ElevatorViewModel.class);
         viewModel.writePressureToDatabase(this);
         viewModel.barometer.getGroundPressure().observe(this, aFloat -> {
-            if (gameStateManager.getGameState() == CALIBRATION) {
-                gameStateManager.setGameState(CAN_PLAY);
+            if (gameStateManager.gameState.getValue() == CALIBRATION) {
+                gameStateManager.gameState.setValue(PLAYING);
             }
         });
         viewModel.getCurrentPressurePercentage().observe(this, integer -> {
@@ -88,27 +91,28 @@ public class ElevatorActivity extends LifecycleActivity implements GameStateMana
         }
     }
 
+    private void updateDoors(boolean open) {
+        float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
+        doorUpper.animate().cancel();
+        doorUpper.animate().translationY(open ? -doorMovement : 0);
+    }
+
     @OnClick(R.id.btn_start)
     public void clickStartGame() {
         viewModel.recordMinPressure();
-        switch (gameStateManager.getGameState()) {
+        switch (gameStateManager.gameState.getValue()) {
             case INIT:
-                gameStateManager.setGameState(CALIBRATION);
+                gameStateManager.gameState.setValue(CALIBRATION);
                 break;
         }
     }
 
-    @Override
-    public void onStateChanged(GameStateManager.GameState newState) {
-        switch (newState) {
-            case PLAYING: // started playing
-                // TODO since we don't care about state transitions, can convert GameStateManager to LiveData
-                break;
-        }
+    @OnClick(android.R.id.content)
+    protected void tappedOnElevator() {
+        gameStateManager.doorsOpen.setValue(false);
     }
 
-    @Override
-    public void onApplyState(GameStateManager.GameState currentState) {
+    private void onApplyState(GameStateManager.GameState currentState) {
         switch (currentState) {
             case INIT:
                 messageText.setVisibility(View.GONE);
@@ -119,11 +123,6 @@ public class ElevatorActivity extends LifecycleActivity implements GameStateMana
                 btnStart.setVisibility(View.GONE);
                 messageText.setVisibility(View.VISIBLE);
                 messageText.setText(R.string.start_game_message);
-                break;
-            case CAN_PLAY:
-                onApplyState(CALIBRATION);
-                messageText.setText(messageText.getText() + "\n" +
-                        getString(R.string.tap_lobby_to_start));
                 break;
             case PLAYING:
                 btnStart.setVisibility(View.GONE);
