@@ -6,10 +6,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.persistence.Person;
+
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,6 +29,25 @@ public class PersonWidget extends FrameLayout {
 
     @BindView(R.id.background) View background;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
+
+    Random random = new Random();
+    private Person person;
+    private Runnable updateRunnable = () -> {
+        if (person == null) {
+            return;
+        }
+        progressBar.setProgress((int) (person.timeLeft() * 100));
+        ViewParent parent = getParent();
+        if (parent instanceof ViewGroup) {
+            ViewGroup parentView = (ViewGroup) parent;
+            // TODO put in actual behavior
+            animate()
+                    .x(random.nextInt(Math.max(parentView.getMeasuredWidth() - getMeasuredWidth(), 1)))
+                    .y(random.nextInt(Math.max(parentView.getMeasuredHeight() - getMeasuredHeight(), 1)))
+                    .setDuration(2000)
+                    .start();
+        }
+    };
 
     public PersonWidget(@NonNull Context context) {
         super(context);
@@ -42,7 +66,20 @@ public class PersonWidget extends FrameLayout {
 
     public void init(Context context) {
         inflate(getContext(), R.layout.widget_person, this);
+        setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         ButterKnife.bind(this, this);
+    }
+
+    public boolean setPerson(Person person) {
+        if (this.person != null && this.person.getId() != person.getId()) {
+            return false;
+        }
+        this.person = person;
+        return true;
+    }
+
+    public void update() {
+        post(updateRunnable);
     }
 
 }

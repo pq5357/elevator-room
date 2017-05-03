@@ -6,9 +6,13 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Random;
+import com.willowtreeapps.android.elevatorroom.persistence.Person;
+import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
+
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -27,14 +31,11 @@ public class LobbyActivity extends LifecycleActivity {
     private LobbyViewModel viewModel;
     private GameStateManager gameStateManager;
     private Disposable floorDisposable = Disposables.disposed();
+    private Disposable peopleDisposable = Disposables.disposed();
     private Disposable intervalDisposable = Disposables.disposed();
 
-    @BindView(R.id.textview)
-    TextView label;
-    @BindView(R.id.person)
-    View person;
-    @BindView(R.id.playfield)
-    View playField;
+    @BindView(R.id.textview) TextView label;
+    @BindView(R.id.persons_container) ViewGroup personsContainer;
     @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.door_lower) View doorLower;
 
@@ -52,6 +53,10 @@ public class LobbyActivity extends LifecycleActivity {
         floorDisposable = viewModel.currentFloor()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
+        peopleDisposable.dispose();
+        peopleDisposable = viewModel.activePeople()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::updateForPeople);
     }
 
     @OnClick(android.R.id.content)
@@ -77,17 +82,52 @@ public class LobbyActivity extends LifecycleActivity {
         doorLower.animate().translationY(open ? doorMovement : 0);
     }
 
+    private void updateForPeople(List<Person> people) {
+        int childCount = personsContainer.getChildCount();
+        for (int childIndex = childCount - 1; childIndex >= 0; childIndex--) {
+            PersonWidget widget = (PersonWidget) personsContainer.getChildAt(childIndex);
+            boolean found = false;
+            for (Person person : people) {
+                if (widget.setPerson(person)) {
+                    people.remove(person); // person has been accounted for
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // didn't match an active person, so remove it from playfield
+                personsContainer.removeView(widget);
+            }
+        }
+        // add persons that haven't been accounted for
+        for (Person person : people) {
+            PersonWidget widget = new PersonWidget(this);
+            personsContainer.addView(widget);
+            widget.setPerson(person);
+        }
+        updateWidgets();
+    }
+
+    private void updateWidgets() {
+        for (int i = 0; i < personsContainer.getChildCount(); i++) {
+            ((PersonWidget) personsContainer.getChildAt(i)).update();
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        intervalDisposable = Observable.interval(5, TimeUnit.SECONDS)
+        intervalDisposable.dispose();
+        intervalDisposable = Observable.interval(4, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.computation())
-                .subscribe(aLong -> animatePerson());
-        person.setOnClickListener(v -> startDrag());
+                .subscribe(aLong -> {
+                    viewModel.fakeNew();
+                });
+//        person.setOnClickListener(v -> startDrag());
     }
 
-    private boolean startDrag() {
+    private boolean startDrag(View person) {
         person.startDragAndDrop(null, getShadow(person), Boolean.TRUE,
                 View.DRAG_FLAG_GLOBAL | View.DRAG_FLAG_GLOBAL_URI_READ |
                         View.DRAG_FLAG_GLOBAL_PERSISTABLE_URI_PERMISSION);
@@ -109,19 +149,15 @@ public class LobbyActivity extends LifecycleActivity {
         };
     }
 
-    private void animatePerson() {
-        Random random = new Random();
-        person.animate().x(random.nextInt(Math.max(playField.getWidth() - person.getWidth(), 0))).y(random.nextInt(Math.max(playField.getHeight() - person.getWidth(), 0))).setDuration(2000).start();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         intervalDisposable.dispose();
+        floorDisposable.dispose();
+        peopleDisposable.dispose();
         if (unbinder != null) {
             unbinder.unbind();
         }
-        floorDisposable.dispose();
     }
 
 }

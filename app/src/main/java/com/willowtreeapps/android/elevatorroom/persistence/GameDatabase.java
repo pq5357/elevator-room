@@ -4,6 +4,8 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RxRoom;
 
+import java.util.List;
+
 import io.reactivex.Flowable;
 
 /**
@@ -29,6 +31,11 @@ public abstract class GameDatabase extends RoomDatabase {
                     }
                     return currentFloor;
                 });
+    }
+
+    public Flowable<List<Person>> activePeople() {
+        return RxRoom.createFlowable(this, Person.TABLE)
+                .map(o -> personDao().loadActivePeople());
     }
 
 }

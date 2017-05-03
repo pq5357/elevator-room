@@ -37,11 +37,15 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <com.willowtreeapps.android.elevatorroom.widget.PersonWidget
-                android:id="@+id/person"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"/>
+            <FrameLayout
+                android:id="@+id/decor_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <FrameLayout
+                android:id="@+id/persons_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
         </FrameLayout>
 
