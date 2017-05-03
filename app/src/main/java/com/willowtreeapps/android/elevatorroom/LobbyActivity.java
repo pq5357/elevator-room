@@ -24,9 +24,10 @@ import io.reactivex.schedulers.Schedulers;
 public class LobbyActivity extends LifecycleActivity {
 
     private Unbinder unbinder;
-    private Disposable floorDisposable = Disposables.disposed();
     private LobbyViewModel viewModel;
     private GameStateManager gameStateManager;
+    private Disposable floorDisposable = Disposables.disposed();
+    private Disposable intervalDisposable = Disposables.disposed();
 
     @BindView(R.id.textview)
     TextView label;
@@ -34,8 +35,8 @@ public class LobbyActivity extends LifecycleActivity {
     View person;
     @BindView(R.id.playfield)
     View playField;
-    Disposable intervalDisposable = Disposables.disposed();
-
+    @BindView(R.id.door_upper) View doorUpper;
+    @BindView(R.id.door_lower) View doorLower;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,7 @@ public class LobbyActivity extends LifecycleActivity {
         gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this);
         gameStateManager.gameState.observe(this, this::onApplyState);
+        gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
         floorDisposable.dispose();
@@ -65,6 +67,14 @@ public class LobbyActivity extends LifecycleActivity {
             case PLAYING:
                 break;
         }
+    }
+
+    private void updateDoors(boolean open) {
+        float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
+        doorUpper.animate().cancel();
+        doorUpper.animate().translationY(open ? -doorMovement : 0);
+        doorLower.animate().cancel();
+        doorLower.animate().translationY(open ? doorMovement : 0);
     }
 
     @Override

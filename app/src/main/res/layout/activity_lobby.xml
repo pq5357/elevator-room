@@ -25,18 +25,58 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <FrameLayout
-        android:id="@+id/playfield"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
-        <View
-            android:id="@+id/person"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@color/colorAccent"/>
+        <FrameLayout
+            android:id="@+id/playfield"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
 
-    </FrameLayout>
+            <View
+                android:id="@+id/person"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@color/colorAccent"/>
 
+        </FrameLayout>
+
+        <RelativeLayout
+            android:layout_width="12dp"
+            android:layout_height="match_parent">
+
+            <Space
+                android:id="@+id/elevator_center"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_centerInParent="true"/>
+
+            <View
+                android:layout_width="6dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:background="@color/lobby_wall"/>
+
+            <View
+                android:id="@+id/door_upper"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/elevator_door_size"
+                android:layout_above="@id/elevator_center"
+                android:background="@color/elevator_doors"/>
+
+            <View
+                android:id="@+id/door_lower"
+                android:layout_width="9dp"
+                android:layout_height="@dimen/elevator_door_size"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/elevator_center"
+                android:background="@color/elevator_doors"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
 </LinearLayout>
