@@ -7,6 +7,8 @@ import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 
+import java.util.List;
+
 import io.reactivex.Flowable;
 
 
@@ -22,9 +24,13 @@ public class LobbyViewModel extends ViewModel {
         return database.currentFloor();
     }
 
+    public Flowable<List<Person>> activePeople() {
+        return database.activePeople();
+    }
+
     public void fakeNew() {
         database.personDao().newPerson(new Person(
-                System.currentTimeMillis() + DateUtils.SECOND_IN_MILLIS * 5,
+                System.currentTimeMillis() + DateUtils.SECOND_IN_MILLIS * 10,
                 2, 0
         ));
     }

@@ -75,7 +75,7 @@ public class Person {
     }
 
 
-    protected long getId() {
+    public long getId() {
         return id;
     }
 
@@ -123,11 +123,11 @@ public class Person {
         this.goal = goal;
     }
 
-    protected int getCurrentFloor() {
+    public int getCurrentFloor() {
         return currentFloor;
     }
 
-    protected void setCurrentFloor(int currentFloor) {
+    public void setCurrentFloor(int currentFloor) {
         this.currentFloor = currentFloor;
     }
 
