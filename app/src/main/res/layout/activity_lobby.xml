@@ -50,7 +50,7 @@
         </FrameLayout>
 
         <RelativeLayout
-            android:layout_width="12dp"
+            android:layout_width="@dimen/lobby_doors_width"
             android:layout_height="match_parent">
 
             <Space

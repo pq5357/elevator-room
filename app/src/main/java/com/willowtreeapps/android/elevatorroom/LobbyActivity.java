@@ -49,14 +49,13 @@ public class LobbyActivity extends LifecycleActivity {
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
+        viewModel.getUpdateTimer().observe(this, this::updateWidgets);
         floorDisposable.dispose();
         floorDisposable = viewModel.currentFloor()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
         peopleDisposable.dispose();
-        peopleDisposable = viewModel.activePeople()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::updateForPeople);
+        viewModel.activePeople().observe(this, this::updateForPeople);
     }
 
     @OnClick(android.R.id.content)
@@ -105,10 +104,10 @@ public class LobbyActivity extends LifecycleActivity {
             personsContainer.addView(widget);
             widget.setPerson(person);
         }
-        updateWidgets();
+        updateWidgets(null);
     }
 
-    private void updateWidgets() {
+    private void updateWidgets(Object o) {
         for (int i = 0; i < personsContainer.getChildCount(); i++) {
             ((PersonWidget) personsContainer.getChildAt(i)).update();
         }

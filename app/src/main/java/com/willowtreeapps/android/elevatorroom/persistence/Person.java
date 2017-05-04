@@ -6,6 +6,8 @@ import android.arch.persistence.room.TypeConverter;
 import android.arch.persistence.room.TypeConverters;
 import android.text.TextUtils;
 
+import com.willowtreeapps.android.elevatorroom.MyApplication;
+
 import static com.willowtreeapps.android.elevatorroom.persistence.Person.TABLE;
 
 /**
@@ -40,6 +42,9 @@ public class Person {
         gone = false;
     }
 
+    /**
+     * tell person to disappear
+     */
     public void gone() {
         gone = true;
     }
@@ -62,6 +67,10 @@ public class Person {
         float timeLeft = deadline - System.currentTimeMillis();
         float lifeTime = deadline - birth;
         return timeLeft / lifeTime;
+    }
+
+    public long timeAlive() {
+        return System.currentTimeMillis() - birth;
     }
 
     /**
@@ -129,6 +138,10 @@ public class Person {
 
     public void setCurrentFloor(int currentFloor) {
         this.currentFloor = currentFloor;
+    }
+
+    public void save() {
+        MyApplication.getGameDatabase().personDao().updatePerson(this);
     }
 
     public static class StateConverter {
