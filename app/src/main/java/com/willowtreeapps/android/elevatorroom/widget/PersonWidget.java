@@ -83,6 +83,7 @@ public class PersonWidget extends FrameLayout {
             return false;
         }
         this.person = person;
+        background.setBackground(person.getAppearance());
         return true;
     }
 
@@ -103,7 +104,7 @@ public class PersonWidget extends FrameLayout {
             // walk from elevator doors to stage left
         } else {
             // walk from stage left to elevator doors
-            float progress = person.timeAlive() / TIME_TO_CROSS;
+            float progress = person.timeInState() / TIME_TO_CROSS;
             progress = Math.min(progress, 1);
             setX(progress * parentView.getMeasuredWidth() - getMeasuredWidth());
         }

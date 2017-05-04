@@ -34,6 +34,7 @@ public class LobbyActivity extends LifecycleActivity {
     private Disposable peopleDisposable = Disposables.disposed();
     private Disposable intervalDisposable = Disposables.disposed();
 
+    @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
     @BindView(R.id.persons_container) ViewGroup personsContainer;
     @BindView(R.id.door_upper) View doorUpper;
@@ -56,6 +57,7 @@ public class LobbyActivity extends LifecycleActivity {
                 .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
         peopleDisposable.dispose();
         viewModel.activePeople().observe(this, this::updateForPeople);
+        gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
     }
 
     @OnClick(android.R.id.content)
@@ -117,7 +119,7 @@ public class LobbyActivity extends LifecycleActivity {
     protected void onStart() {
         super.onStart();
         intervalDisposable.dispose();
-        intervalDisposable = Observable.interval(4, TimeUnit.SECONDS)
+        intervalDisposable = Observable.interval(1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.computation())
                 .subscribe(aLong -> {

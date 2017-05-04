@@ -33,8 +33,8 @@ public class ElevatorActivity extends LifecycleActivity {
     private GameStateManager gameStateManager;
     private Disposable floorDisposable = Disposables.disposed();
 
-    @BindView(R.id.textview)
-    TextView messageText;
+    @BindView(android.R.id.content) View rootView;
+    @BindView(R.id.textview) TextView messageText;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.btn_start) Button btnStart;
     @BindView(R.id.door_upper) View doorUpper;
@@ -66,6 +66,7 @@ public class ElevatorActivity extends LifecycleActivity {
                 .map(VisitedFloor::getFloor)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::setCurrentFloor);
+        gameStateManager.multiWindowDividerSize.setRightView(this, rootView);
     }
 
     private void setupViews() {
