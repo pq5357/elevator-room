@@ -1,7 +1,6 @@
 package com.willowtreeapps.android.elevatorroom;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.arch.lifecycle.ViewModel;
 import android.text.format.DateUtils;
 
@@ -19,21 +18,21 @@ import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 public class LobbyViewModel extends ViewModel {
 
     private GameDatabase database;
-    private final LiveData<Long> timer = LiveDataReactiveStreams.fromPublisher(FlowableOnBackpressureDrop.interval(12, TimeUnit.MILLISECONDS));
+    private final LiveData<Long> timer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(12, TimeUnit.MILLISECONDS));
 
     public LobbyViewModel() {
         database = MyApplication.getGameDatabase();
     }
 
-    public Flowable<VisitedFloor> currentFloor() {
-        return database.currentFloor();
+    public LiveData<VisitedFloor> currentFloor() {
+        return LiveDataRx.fromEternalPublisher(database.currentFloor());
     }
 
     /**
      * returns people currently in the lobby
      */
     public LiveData<List<Person>> activePeople() {
-        return LiveDataReactiveStreams.fromPublisher(database.activePeople()
+        return LiveDataRx.fromEternalPublisher(database.activePeople()
                 .flatMap(persons -> Flowable.fromIterable(persons)
                         .filter(person -> person.getCurrentState() == Person.State.LOBBY)
                         .toList().toFlowable()

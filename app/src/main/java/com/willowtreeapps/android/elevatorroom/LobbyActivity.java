@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
+import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
 
 import java.util.List;
@@ -30,8 +31,6 @@ public class LobbyActivity extends LifecycleActivity {
     private Unbinder unbinder;
     private LobbyViewModel viewModel;
     private GameStateManager gameStateManager;
-    private Disposable floorDisposable = Disposables.disposed();
-    private Disposable peopleDisposable = Disposables.disposed();
     private Disposable intervalDisposable = Disposables.disposed();
 
     @BindView(android.R.id.content) View rootView;
@@ -51,11 +50,7 @@ public class LobbyActivity extends LifecycleActivity {
 
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
         viewModel.getUpdateTimer().observe(this, this::updateWidgets);
-        floorDisposable.dispose();
-        floorDisposable = viewModel.currentFloor()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
-        peopleDisposable.dispose();
+        viewModel.currentFloor().observe(this, this::updateForFloor);
         viewModel.activePeople().observe(this, this::updateForPeople);
         gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
     }
@@ -81,6 +76,10 @@ public class LobbyActivity extends LifecycleActivity {
         doorUpper.animate().translationY(open ? -doorMovement : 0);
         doorLower.animate().cancel();
         doorLower.animate().translationY(open ? doorMovement : 0);
+    }
+
+    private void updateForFloor(VisitedFloor visitedFloor) {
+        label.setText(getString(R.string.floor_n, visitedFloor.getFloorString()));
     }
 
     private void updateForPeople(List<Person> people) {
@@ -154,8 +153,6 @@ public class LobbyActivity extends LifecycleActivity {
     protected void onDestroy() {
         super.onDestroy();
         intervalDisposable.dispose();
-        floorDisposable.dispose();
-        peopleDisposable.dispose();
         if (unbinder != null) {
             unbinder.unbind();
         }
