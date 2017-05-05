@@ -4,9 +4,15 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverter;
 import android.arch.persistence.room.TypeConverters;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.text.TextUtils;
 
 import com.willowtreeapps.android.elevatorroom.MyApplication;
+
+import java.util.Random;
 
 import static com.willowtreeapps.android.elevatorroom.persistence.Person.TABLE;
 
@@ -27,9 +33,11 @@ public class Person {
     @PrimaryKey(autoGenerate = true)
     private long id;
     private State currentState;
+    private int style; // appearance of this person
     private boolean gone; // person has exited the elevator
     private long birth; // timestamp when created
     private long deadline; // timestamp when need to reach goal
+    private long updated; // timestamp when currentState is updated
     private int goal; // target floor
     private int currentFloor; // current location when
 
@@ -38,8 +46,15 @@ public class Person {
         this.deadline = deadline;
         this.goal = goal;
         this.currentFloor = currentFloor;
-        currentState = State.LOBBY;
+        setCurrentState(State.LOBBY);
         gone = false;
+        style = randomStyle();
+    }
+
+    private int randomStyle() {
+        // TODO currently a random color, should be a random drawable
+        Random rand = new Random();
+        return Color.rgb(rand.nextInt(200) + 40, rand.nextInt(200) + 40, rand.nextInt(200) + 40);
     }
 
     /**
@@ -69,8 +84,17 @@ public class Person {
         return timeLeft / lifeTime;
     }
 
-    public long timeAlive() {
-        return System.currentTimeMillis() - birth;
+    /**
+     * how long I have been in my current state
+     */
+    public long timeInState() {
+        return System.currentTimeMillis() - getUpdated();
+    }
+
+    public Drawable getAppearance() {
+        ShapeDrawable shapeDrawable = new ShapeDrawable(new OvalShape());
+        shapeDrawable.getPaint().setColor(getStyle());
+        return shapeDrawable;
     }
 
     /**
@@ -97,7 +121,10 @@ public class Person {
     }
 
     public void setCurrentState(State currentState) {
-        this.currentState = currentState;
+        if (this.currentState != currentState) {
+            this.currentState = currentState;
+            updated = System.currentTimeMillis();
+        }
     }
 
     protected boolean isGone() {
@@ -138,6 +165,22 @@ public class Person {
 
     public void setCurrentFloor(int currentFloor) {
         this.currentFloor = currentFloor;
+    }
+
+    protected int getStyle() {
+        return style;
+    }
+
+    protected void setStyle(int style) {
+        this.style = style;
+    }
+
+    public long getUpdated() {
+        return updated;
+    }
+
+    protected void setUpdated(long updated) {
+        this.updated = updated;
     }
 
     public void save() {

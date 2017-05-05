@@ -1,7 +1,6 @@
 package com.willowtreeapps.android.elevatorroom;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.arch.lifecycle.ViewModel;
 import android.text.format.DateUtils;
 
@@ -19,21 +18,20 @@ import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 public class LobbyViewModel extends ViewModel {
 
     private GameDatabase database;
-    private final LiveData<Long> timer = LiveDataReactiveStreams.fromPublisher(FlowableOnBackpressureDrop.interval(12, TimeUnit.MILLISECONDS));
+    public final LiveData<Long> gameLoopTimer;
+    public final LiveData<VisitedFloor> currentFloor;
 
     public LobbyViewModel() {
         database = MyApplication.getGameDatabase();
-    }
-
-    public Flowable<VisitedFloor> currentFloor() {
-        return database.currentFloor();
+        currentFloor = LiveDataRx.fromEternalPublisher(database.currentFloor());
+        gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(12, TimeUnit.MILLISECONDS));
     }
 
     /**
      * returns people currently in the lobby
      */
     public LiveData<List<Person>> activePeople() {
-        return LiveDataReactiveStreams.fromPublisher(database.activePeople()
+        return LiveDataRx.fromEternalPublisher(database.activePeople()
                 .flatMap(persons -> Flowable.fromIterable(persons)
                         .filter(person -> person.getCurrentState() == Person.State.LOBBY)
                         .toList().toFlowable()
@@ -41,14 +39,11 @@ public class LobbyViewModel extends ViewModel {
         );
     }
 
-    public LiveData<Long> getUpdateTimer() {
-        return timer;
-    }
-
     public void fakeNew() {
+        int goal = (int) (Math.random() * ElevatorViewModel.TOTAL_FLOORS);
         database.personDao().newPerson(new Person(
                 System.currentTimeMillis() + DateUtils.SECOND_IN_MILLIS * 10,
-                2, 0
+                goal, (goal + 2) % ElevatorViewModel.TOTAL_FLOORS
         ));
     }
 
