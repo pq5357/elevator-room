@@ -35,11 +35,12 @@ public class PersonWidget extends FrameLayout {
 
     Random random = new Random();
     private Person person;
+    private boolean ready = false; // ready for updates
     private Runnable updateRunnable = () -> {
         if (person == null) {
             return;
         }
-        setVisibility(VISIBLE);
+        ready = true;
         progressBar.setProgress((int) (person.timeLeft() * 1000));
         if (person.timeLeft() < 0.4) {
             person.gone();
@@ -116,6 +117,13 @@ public class PersonWidget extends FrameLayout {
             return;
         }
         ViewGroup parentView = (ViewGroup) parent;
+    }
+
+    public void onlyShowCurrentFloor(int currentFloor) {
+        if (!ready) {
+            return;
+        }
+        setVisibility(currentFloor == person.getCurrentFloor() ? VISIBLE : GONE);
     }
 
 }

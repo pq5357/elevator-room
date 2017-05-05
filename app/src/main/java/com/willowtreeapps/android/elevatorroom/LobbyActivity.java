@@ -1,5 +1,7 @@
 package com.willowtreeapps.android.elevatorroom;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Canvas;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
+import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
 
 import java.util.List;
@@ -30,12 +33,12 @@ public class LobbyActivity extends LifecycleActivity {
     private Unbinder unbinder;
     private LobbyViewModel viewModel;
     private GameStateManager gameStateManager;
-    private Disposable floorDisposable = Disposables.disposed();
-    private Disposable peopleDisposable = Disposables.disposed();
     private Disposable intervalDisposable = Disposables.disposed();
+    private Integer floorToRender;
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
+    @BindView(R.id.playfield) ViewGroup playfield;
     @BindView(R.id.persons_container) ViewGroup personsContainer;
     @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.door_lower) View doorLower;
@@ -50,12 +53,8 @@ public class LobbyActivity extends LifecycleActivity {
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
-        viewModel.getUpdateTimer().observe(this, this::updateWidgets);
-        floorDisposable.dispose();
-        floorDisposable = viewModel.currentFloor()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(floor -> label.setText(getString(R.string.floor_n, floor.getFloorString())));
-        peopleDisposable.dispose();
+        viewModel.gameLoopTimer.observe(this, this::updateWidgets);
+        viewModel.currentFloor.observe(this, this::updateForFloor);
         viewModel.activePeople().observe(this, this::updateForPeople);
         gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
     }
@@ -77,10 +76,30 @@ public class LobbyActivity extends LifecycleActivity {
 
     private void updateDoors(boolean open) {
         float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
-        doorUpper.animate().cancel();
         doorUpper.animate().translationY(open ? -doorMovement : 0);
-        doorLower.animate().cancel();
         doorLower.animate().translationY(open ? doorMovement : 0);
+    }
+
+    private final int fadeDuration = 200;
+    private AnimatorListenerAdapter fadeOutListener = new AnimatorListenerAdapter() {
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            floorToRender = viewModel.currentFloor.getValue().getFloor();
+            playfield.animate().alpha(1).setDuration(fadeDuration)
+                    .setListener(null)
+                    .start();
+        }
+    };
+
+    private void updateForFloor(VisitedFloor visitedFloor) {
+        label.setText(getString(R.string.floor_n, visitedFloor.getFloorString()));
+        if (floorToRender == null) {
+            floorToRender = visitedFloor.getFloor();
+            return;
+        }
+        playfield.animate().alpha(0).setDuration(fadeDuration)
+                .setListener(fadeOutListener)
+                .start();
     }
 
     private void updateForPeople(List<Person> people) {
@@ -111,7 +130,11 @@ public class LobbyActivity extends LifecycleActivity {
 
     private void updateWidgets(Object o) {
         for (int i = 0; i < personsContainer.getChildCount(); i++) {
-            ((PersonWidget) personsContainer.getChildAt(i)).update();
+            PersonWidget widget = (PersonWidget) personsContainer.getChildAt(i);
+            widget.update();
+            if (floorToRender != null) {
+                widget.onlyShowCurrentFloor(floorToRender);
+            }
         }
     }
 
@@ -154,8 +177,6 @@ public class LobbyActivity extends LifecycleActivity {
     protected void onDestroy() {
         super.onDestroy();
         intervalDisposable.dispose();
-        floorDisposable.dispose();
-        peopleDisposable.dispose();
         if (unbinder != null) {
             unbinder.unbind();
         }
