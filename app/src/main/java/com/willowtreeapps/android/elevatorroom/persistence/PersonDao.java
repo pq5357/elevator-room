@@ -4,6 +4,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.TypeConverters;
+import android.arch.persistence.room.Update;
 
 import java.util.List;
 
@@ -22,6 +23,9 @@ public interface PersonDao {
 
     @Insert
     void newPerson(Person person);
+
+    @Update
+    void updatePerson(Person person);
 
     @Query("DELETE FROM " + Person.TABLE)
     void deleteAllPeople();

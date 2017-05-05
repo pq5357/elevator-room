@@ -23,7 +23,7 @@
         android:orientation="horizontal">
 
         <RelativeLayout
-            android:layout_width="3dp"
+            android:layout_width="@dimen/elevator_doors_width"
             android:layout_height="match_parent">
 
             <Space

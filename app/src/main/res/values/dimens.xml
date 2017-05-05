@@ -6,6 +6,8 @@
     <item name="elevator_door_size" type="dimen">80dp</item>
     <item name="elevator_door_movement" type="dimen">40dp</item>
     <item name="person_size" type="dimen">48dp</item>
+    <item name="lobby_doors_width" type="dimen">12dp</item>
+    <item name="elevator_doors_width" type="dimen">3dp</item>
 
     <item name="toolbar_text_size" type="dimen">18sp</item>
 

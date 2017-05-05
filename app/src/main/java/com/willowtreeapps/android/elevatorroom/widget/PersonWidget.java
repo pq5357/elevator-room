@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,25 +28,32 @@ import butterknife.ButterKnife;
 
 public class PersonWidget extends FrameLayout {
 
+    public static final float TIME_TO_CROSS = DateUtils.SECOND_IN_MILLIS * 3; // time required to cross the room horizontally
+
     @BindView(R.id.background) View background;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
 
     Random random = new Random();
     private Person person;
+    private boolean ready = false; // ready for updates
     private Runnable updateRunnable = () -> {
         if (person == null) {
             return;
         }
-        progressBar.setProgress((int) (person.timeLeft() * 100));
-        ViewParent parent = getParent();
-        if (parent instanceof ViewGroup) {
-            ViewGroup parentView = (ViewGroup) parent;
-            // TODO put in actual behavior
-            animate()
-                    .x(random.nextInt(Math.max(parentView.getMeasuredWidth() - getMeasuredWidth(), 1)))
-                    .y(random.nextInt(Math.max(parentView.getMeasuredHeight() - getMeasuredHeight(), 1)))
-                    .setDuration(2000)
-                    .start();
+        ready = true;
+        progressBar.setProgress((int) (person.timeLeft() * 1000));
+        if (person.timeLeft() < 0.4) {
+            person.gone();
+            person.save();
+        }
+        switch (person.getCurrentState()) {
+            case LOBBY:
+                updateInLobby();
+                break;
+            case ELEVATOR_PRE_PRESS:
+            case ELEVATOR_POST_PRESS:
+                updateInElevator();
+                break;
         }
     };
 
@@ -68,6 +76,7 @@ public class PersonWidget extends FrameLayout {
         inflate(getContext(), R.layout.widget_person, this);
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         ButterKnife.bind(this, this);
+        setVisibility(INVISIBLE);
     }
 
     public boolean setPerson(Person person) {
@@ -75,11 +84,46 @@ public class PersonWidget extends FrameLayout {
             return false;
         }
         this.person = person;
+        background.setBackground(person.getAppearance());
         return true;
     }
 
     public void update() {
         post(updateRunnable);
+    }
+
+    private void updateInLobby() {
+        ViewParent parent = getParent();
+        if (!(parent instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup parentView = (ViewGroup) parent;
+        float speed = parentView.getMeasuredWidth() / TIME_TO_CROSS; // pixels per ms
+        float targetY = (parentView.getMeasuredHeight() - getMeasuredHeight()) / 2.0f;
+        setY(targetY);
+        if (person.hasReachedGoal()) {
+            // walk from elevator doors to stage left
+        } else {
+            // walk from stage left to elevator doors
+            float progress = person.timeInState() / TIME_TO_CROSS;
+            progress = Math.min(progress, 1);
+            setX(progress * parentView.getMeasuredWidth() - getMeasuredWidth());
+        }
+    }
+
+    private void updateInElevator() {
+        ViewParent parent = getParent();
+        if (!(parent instanceof ViewGroup)) {
+            return;
+        }
+        ViewGroup parentView = (ViewGroup) parent;
+    }
+
+    public void onlyShowCurrentFloor(int currentFloor) {
+        if (!ready) {
+            return;
+        }
+        setVisibility(currentFloor == person.getCurrentFloor() ? VISIBLE : GONE);
     }
 
 }

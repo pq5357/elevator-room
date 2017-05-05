@@ -9,8 +9,7 @@
             android:id="@+id/background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="7dp"
-            android:background="@drawable/lighted_circle"/>
+            android:layout_margin="7dp"/>
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -18,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:indeterminate="false"
-            android:max="100"
+            android:max="1000"
             android:progressDrawable="@drawable/progress_drawable"/>
 
     </FrameLayout>
