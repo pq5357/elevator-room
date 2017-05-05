@@ -18,14 +18,13 @@ import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 public class LobbyViewModel extends ViewModel {
 
     private GameDatabase database;
-    private final LiveData<Long> timer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(12, TimeUnit.MILLISECONDS));
+    public final LiveData<Long> gameLoopTimer;
+    public final LiveData<VisitedFloor> currentFloor;
 
     public LobbyViewModel() {
         database = MyApplication.getGameDatabase();
-    }
-
-    public LiveData<VisitedFloor> currentFloor() {
-        return LiveDataRx.fromEternalPublisher(database.currentFloor());
+        currentFloor = LiveDataRx.fromEternalPublisher(database.currentFloor());
+        gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(12, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -38,10 +37,6 @@ public class LobbyViewModel extends ViewModel {
                         .toList().toFlowable()
                 )
         );
-    }
-
-    public LiveData<Long> getUpdateTimer() {
-        return timer;
     }
 
     public void fakeNew() {
