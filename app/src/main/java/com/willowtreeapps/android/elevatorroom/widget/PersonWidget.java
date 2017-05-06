@@ -1,5 +1,6 @@
 package com.willowtreeapps.android.elevatorroom.widget;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
@@ -35,27 +36,9 @@ public class PersonWidget extends FrameLayout {
 
     Random random = new Random();
     private Person person;
-    private boolean ready = false; // ready for updates
-    private Runnable updateRunnable = () -> {
-        if (person == null) {
-            return;
-        }
-        ready = true;
-        progressBar.setProgress((int) (person.timeLeft() * 1000));
-        if (person.timeLeft() < 0.4) {
-            person.gone();
-            person.save();
-        }
-        switch (person.getCurrentState()) {
-            case LOBBY:
-                updateInLobby();
-                break;
-            case ELEVATOR_PRE_PRESS:
-            case ELEVATOR_POST_PRESS:
-                updateInElevator();
-                break;
-        }
-    };
+    private boolean belongsToLobby; // this view is rendered in the Lobby window (as opposed to the Elevator window)
+    private LiveData<Integer> currentFloor;
+    private LiveData<Boolean> doorsOpen; // are the elevator doors all the way open
 
     public PersonWidget(@NonNull Context context) {
         super(context);
@@ -72,11 +55,19 @@ public class PersonWidget extends FrameLayout {
         init(context);
     }
 
-    public void init(Context context) {
-        inflate(getContext(), R.layout.widget_person, this);
+    private PersonWidget init(Context context) {
+        inflate(context, R.layout.widget_person, this);
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         ButterKnife.bind(this, this);
         setVisibility(INVISIBLE);
+        return this;
+    }
+
+    public PersonWidget init(boolean belongsToLobby, LiveData<Integer> currentFloor, LiveData<Boolean> doorsOpen) {
+        this.belongsToLobby = belongsToLobby;
+        this.currentFloor = currentFloor;
+        this.doorsOpen = doorsOpen;
+        return this;
     }
 
     public boolean setPerson(Person person) {
@@ -89,7 +80,25 @@ public class PersonWidget extends FrameLayout {
     }
 
     public void update() {
-        post(updateRunnable);
+        if (person == null) {
+            return;
+        }
+        progressBar.setProgress((int) (person.timeLeft() * 1000));
+        if (person.timeLeft() < 0.4) {
+            person.gone();
+        }
+        if (belongsToLobby) {
+            setVisibility(currentFloor.getValue() == person.getCurrentFloor() ? VISIBLE : GONE);
+            if (person.isInLobby()) {
+                updateInLobby();
+            }
+        } else {
+            setVisibility(VISIBLE);
+            if (person.isInElevator()) {
+                updateInElevator();
+            }
+        }
+        person.save();
     }
 
     private void updateInLobby() {
@@ -98,16 +107,29 @@ public class PersonWidget extends FrameLayout {
             return;
         }
         ViewGroup parentView = (ViewGroup) parent;
+        float mySize = getResources().getDimension(R.dimen.person_size);
         float speed = parentView.getMeasuredWidth() / TIME_TO_CROSS; // pixels per ms
-        float targetY = (parentView.getMeasuredHeight() - getMeasuredHeight()) / 2.0f;
+        float targetY = (parentView.getMeasuredHeight() - mySize) / 2.0f;
         setY(targetY);
         if (person.hasReachedGoal()) {
             // walk from elevator doors to stage left
         } else {
-            // walk from stage left to elevator doors
-            float progress = person.timeInState() / TIME_TO_CROSS;
-            progress = Math.min(progress, 1);
-            setX(progress * parentView.getMeasuredWidth() - getMeasuredWidth());
+            switch (person.getCurrentState()) {
+                case LOBBY:
+                    // walk from stage left to elevator doors
+                    float progress = person.timeInState() / TIME_TO_CROSS;
+                    progress = Math.min(progress, 1);
+                    setX(progress * parentView.getMeasuredWidth() - mySize);
+                    // if person has reached doors and they are open, then person enters elevator
+                    if (progress == 1 && doorsOpen.getValue()) {
+                        person.setCurrentState(Person.State.ELEVATOR_PRE_PRESS);
+                    }
+                    break;
+                case ELEVATOR_PRE_PRESS:
+                    setBackgroundColor(-1);
+                    break;
+            }
+
         }
     }
 
@@ -117,13 +139,6 @@ public class PersonWidget extends FrameLayout {
             return;
         }
         ViewGroup parentView = (ViewGroup) parent;
-    }
-
-    public void onlyShowCurrentFloor(int currentFloor) {
-        if (!ready) {
-            return;
-        }
-        setVisibility(currentFloor == person.getCurrentFloor() ? VISIBLE : GONE);
     }
 
 }

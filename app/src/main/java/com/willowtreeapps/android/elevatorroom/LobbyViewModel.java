@@ -33,7 +33,7 @@ public class LobbyViewModel extends ViewModel {
     public LiveData<List<Person>> activePeople() {
         return LiveDataRx.fromEternalPublisher(database.activePeople()
                 .flatMap(persons -> Flowable.fromIterable(persons)
-                        .filter(person -> person.getCurrentState() == Person.State.LOBBY)
+                        .filter(Person::isInLobby)
                         .toList().toFlowable()
                 )
         );

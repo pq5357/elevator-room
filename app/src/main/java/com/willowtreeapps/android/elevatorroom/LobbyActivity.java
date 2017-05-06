@@ -3,6 +3,7 @@ package com.willowtreeapps.android.elevatorroom;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -34,7 +35,8 @@ public class LobbyActivity extends LifecycleActivity {
     private LobbyViewModel viewModel;
     private GameStateManager gameStateManager;
     private Disposable intervalDisposable = Disposables.disposed();
-    private Integer floorToRender;
+    private final MutableLiveData<Integer> floorToRender = new DistinctLiveData<>();
+    private final MutableLiveData<Boolean> doorsOpen = new DistinctLiveData<>();
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
@@ -77,29 +79,37 @@ public class LobbyActivity extends LifecycleActivity {
     private void updateDoors(boolean open) {
         float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
         doorUpper.animate().translationY(open ? -doorMovement : 0);
-        doorLower.animate().translationY(open ? doorMovement : 0);
+        doorLower.animate().translationY(open ? doorMovement : 0)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        doorsOpen.setValue(open);
+                    }
+                });
+        if (!open) { // when closing, set state to closed immediately
+            doorsOpen.setValue(false);
+        }
     }
 
     private final int fadeDuration = 200;
     private AnimatorListenerAdapter fadeOutListener = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationEnd(Animator animation) {
-            floorToRender = viewModel.currentFloor.getValue().getFloor();
-            playfield.animate().alpha(1).setDuration(fadeDuration)
-                    .setListener(null)
-                    .start();
+            floorToRender.setValue(viewModel.currentFloor.getValue().getFloor());
+            if (playfield == null) {
+                return;
+            }
+            playfield.animate().alpha(1).setDuration(fadeDuration).setListener(null);
         }
     };
 
     private void updateForFloor(VisitedFloor visitedFloor) {
         label.setText(getString(R.string.floor_n, visitedFloor.getFloorString()));
-        if (floorToRender == null) {
-            floorToRender = visitedFloor.getFloor();
+        if (floorToRender.getValue() == null) {
+            floorToRender.setValue(visitedFloor.getFloor());
             return;
         }
-        playfield.animate().alpha(0).setDuration(fadeDuration)
-                .setListener(fadeOutListener)
-                .start();
+        playfield.animate().alpha(0).setDuration(fadeDuration).setListener(fadeOutListener);
     }
 
     private void updateForPeople(List<Person> people) {
@@ -121,7 +131,7 @@ public class LobbyActivity extends LifecycleActivity {
         }
         // add persons that haven't been accounted for
         for (Person person : people) {
-            PersonWidget widget = new PersonWidget(this);
+            PersonWidget widget = new PersonWidget(this).init(true, floorToRender, doorsOpen);
             personsContainer.addView(widget);
             widget.setPerson(person);
         }
@@ -132,9 +142,6 @@ public class LobbyActivity extends LifecycleActivity {
         for (int i = 0; i < personsContainer.getChildCount(); i++) {
             PersonWidget widget = (PersonWidget) personsContainer.getChildAt(i);
             widget.update();
-            if (floorToRender != null) {
-                widget.onlyShowCurrentFloor(floorToRender);
-            }
         }
     }
 
