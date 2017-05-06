@@ -46,7 +46,20 @@
 
         </RelativeLayout>
 
+        <FrameLayout
+            android:id="@+id/playfield"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/persons_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </FrameLayout>
+
         <LinearLayout
+            android:id="@+id/messaging"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"

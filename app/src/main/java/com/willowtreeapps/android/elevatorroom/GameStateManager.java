@@ -12,6 +12,8 @@ import android.view.View;
 
 public class GameStateManager {
 
+    public static final int FRAME_LENGTH = 12; // length of a frame in the game
+
     public enum GameState {
         INIT, CALIBRATION, PLAYING
     }

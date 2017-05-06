@@ -83,11 +83,14 @@ public class PersonWidget extends FrameLayout {
     }
 
     public void update() {
-        if (person == null || currentFloor.getValue() == null) {
+        if (person == null) {
             return;
         }
         progressBar.setProgress((int) (person.timeLeft() * 1000));
         if (belongsToLobby) {
+            if (currentFloor.getValue() == null) {
+                return;
+            }
             setVisibility(currentFloor.getValue() == person.getCurrentFloor() ? VISIBLE : GONE);
             if (person.isInLobby()) {
                 updateInLobby();
