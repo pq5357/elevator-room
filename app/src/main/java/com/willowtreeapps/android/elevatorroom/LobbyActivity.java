@@ -131,7 +131,8 @@ public class LobbyActivity extends LifecycleActivity {
         }
         // add persons that haven't been accounted for
         for (Person person : people) {
-            PersonWidget widget = new PersonWidget(this).init(true, floorToRender, doorsOpen);
+            PersonWidget widget = new PersonWidget(this).init(true,
+                    gameStateManager.multiWindowDividerSize, floorToRender, doorsOpen);
             personsContainer.addView(widget);
             widget.setPerson(person);
         }

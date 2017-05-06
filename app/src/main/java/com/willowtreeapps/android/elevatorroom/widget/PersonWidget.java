@@ -39,6 +39,7 @@ public class PersonWidget extends FrameLayout {
     private boolean belongsToLobby; // this view is rendered in the Lobby window (as opposed to the Elevator window)
     private LiveData<Integer> currentFloor;
     private LiveData<Boolean> doorsOpen; // are the elevator doors all the way open
+    private LiveData<Integer> multiWindowDividerSize;
 
     public PersonWidget(@NonNull Context context) {
         super(context);
@@ -63,8 +64,9 @@ public class PersonWidget extends FrameLayout {
         return this;
     }
 
-    public PersonWidget init(boolean belongsToLobby, LiveData<Integer> currentFloor, LiveData<Boolean> doorsOpen) {
+    public PersonWidget init(boolean belongsToLobby, LiveData<Integer> multiWindowDividerSize, LiveData<Integer> currentFloor, LiveData<Boolean> doorsOpen) {
         this.belongsToLobby = belongsToLobby;
+        this.multiWindowDividerSize = multiWindowDividerSize;
         this.currentFloor = currentFloor;
         this.doorsOpen = doorsOpen;
         return this;
@@ -80,13 +82,10 @@ public class PersonWidget extends FrameLayout {
     }
 
     public void update() {
-        if (person == null) {
+        if (person == null || currentFloor.getValue() == null) {
             return;
         }
         progressBar.setProgress((int) (person.timeLeft() * 1000));
-        if (person.timeLeft() < 0.4) {
-            person.gone();
-        }
         if (belongsToLobby) {
             setVisibility(currentFloor.getValue() == person.getCurrentFloor() ? VISIBLE : GONE);
             if (person.isInLobby()) {
@@ -102,6 +101,9 @@ public class PersonWidget extends FrameLayout {
     }
 
     private void updateInLobby() {
+        if (doorsOpen.getValue() == null) {
+            return;
+        }
         ViewParent parent = getParent();
         if (!(parent instanceof ViewGroup)) {
             return;
@@ -111,22 +113,32 @@ public class PersonWidget extends FrameLayout {
         float speed = parentView.getMeasuredWidth() / TIME_TO_CROSS; // pixels per ms
         float targetY = (parentView.getMeasuredHeight() - mySize) / 2.0f;
         setY(targetY);
+        float progress;
         if (person.hasReachedGoal()) {
             // walk from elevator doors to stage left
+            person.gone();
         } else {
             switch (person.getCurrentState()) {
                 case LOBBY:
                     // walk from stage left to elevator doors
-                    float progress = person.timeInState() / TIME_TO_CROSS;
+                    progress = person.timeInState() / TIME_TO_CROSS;
                     progress = Math.min(progress, 1);
                     setX(progress * parentView.getMeasuredWidth() - mySize);
                     // if person has reached doors and they are open, then person enters elevator
                     if (progress == 1 && doorsOpen.getValue()) {
-                        person.setCurrentState(Person.State.ELEVATOR_PRE_PRESS);
+                        person.setCurrentState(Person.State.IN_DOOR);
                     }
                     break;
-                case ELEVATOR_PRE_PRESS:
-                    setBackgroundColor(-1);
+                case IN_DOOR:
+                    // walk from the lobby into the elevator
+                    float distance = getTraverseDoorsDistance();
+                    float time = distance / speed;
+                    progress = person.timeInState() / time;
+                    progress = Math.min(progress, 1);
+                    setX(parentView.getMeasuredWidth() - mySize + distance * progress);
+                    if (progress == 1) {
+                        person.setCurrentState(Person.State.ELEVATOR_PRE_PRESS);
+                    }
                     break;
             }
 
@@ -139,6 +151,19 @@ public class PersonWidget extends FrameLayout {
             return;
         }
         ViewGroup parentView = (ViewGroup) parent;
+    }
+
+    /**
+     * distance required to traverse from lobby into elevator (or vice versa)
+     */
+    private float getTraverseDoorsDistance() {
+        if (multiWindowDividerSize.getValue() == null) {
+            return Float.MAX_VALUE;
+        }
+        return multiWindowDividerSize.getValue()
+                + getResources().getDimension(R.dimen.person_size)
+                + getResources().getDimension(R.dimen.lobby_doors_width)
+                + getResources().getDimension(R.dimen.elevator_doors_width);
     }
 
 }
