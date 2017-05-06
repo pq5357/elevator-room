@@ -105,7 +105,8 @@ public class LobbyActivity extends LifecycleActivity {
 
     private void updateForFloor(VisitedFloor visitedFloor) {
         label.setText(getString(R.string.floor_n, visitedFloor.getFloorString()));
-        if (floorToRender.getValue() == null) {
+        if (floorToRender.getValue() == null
+                || floorToRender.getValue() == visitedFloor.getFloor()) {
             floorToRender.setValue(visitedFloor.getFloor());
             return;
         }
@@ -150,7 +151,7 @@ public class LobbyActivity extends LifecycleActivity {
     protected void onStart() {
         super.onStart();
         intervalDisposable.dispose();
-        intervalDisposable = Observable.interval(1, TimeUnit.SECONDS)
+        intervalDisposable = Observable.interval(3, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.computation())
                 .subscribe(aLong -> {

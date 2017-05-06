@@ -42,8 +42,8 @@ public class LobbyViewModel extends ViewModel {
     public void fakeNew() {
         int goal = (int) (Math.random() * ElevatorViewModel.TOTAL_FLOORS);
         database.personDao().newPerson(new Person(
-                System.currentTimeMillis() + DateUtils.SECOND_IN_MILLIS * 10,
-                goal, (goal + 2) % ElevatorViewModel.TOTAL_FLOORS
+                System.currentTimeMillis() + DateUtils.SECOND_IN_MILLIS * 15,
+                1, 0
         ));
     }
 

@@ -2,6 +2,7 @@ package com.willowtreeapps.android.elevatorroom.widget;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -109,11 +110,11 @@ public class PersonWidget extends FrameLayout {
             return;
         }
         ViewGroup parentView = (ViewGroup) parent;
-        float mySize = getResources().getDimension(R.dimen.person_size);
+        Resources res = getResources();
+        float mySize = res.getDimension(R.dimen.person_size);
         float speed = parentView.getMeasuredWidth() / TIME_TO_CROSS; // pixels per ms
         float targetY = (parentView.getMeasuredHeight() - mySize) / 2.0f;
         setY(targetY);
-        float progress;
         if (person.hasReachedGoal()) {
             // walk from elevator doors to stage left
             person.gone();
@@ -121,22 +122,18 @@ public class PersonWidget extends FrameLayout {
             switch (person.getCurrentState()) {
                 case LOBBY:
                     // walk from stage left to elevator doors
-                    progress = person.timeInState() / TIME_TO_CROSS;
-                    progress = Math.min(progress, 1);
-                    setX(progress * parentView.getMeasuredWidth() - mySize);
+                    float roomWidth = parentView.getMeasuredWidth() - res.getDimension(R.dimen.lobby_doors_width);
+                    float crossProgress = moveX(speed, -mySize, roomWidth);
                     // if person has reached doors and they are open, then person enters elevator
-                    if (progress == 1 && doorsOpen.getValue()) {
+                    if (crossProgress == 1 && doorsOpen.getValue()) {
                         person.setCurrentState(Person.State.IN_DOOR);
                     }
                     break;
                 case IN_DOOR:
                     // walk from the lobby into the elevator
-                    float distance = getTraverseDoorsDistance();
-                    float time = distance / speed;
-                    progress = person.timeInState() / time;
-                    progress = Math.min(progress, 1);
-                    setX(parentView.getMeasuredWidth() - mySize + distance * progress);
-                    if (progress == 1) {
+                    float startAtDoor = parentView.getMeasuredWidth() - mySize - res.getDimension(R.dimen.lobby_doors_width);
+                    float traverseProgress = moveX(speed, startAtDoor, getTraverseDoorsDistance());
+                    if (traverseProgress == 1) {
                         person.setCurrentState(Person.State.ELEVATOR_PRE_PRESS);
                     }
                     break;
@@ -153,6 +150,14 @@ public class PersonWidget extends FrameLayout {
         ViewGroup parentView = (ViewGroup) parent;
     }
 
+    private float moveX(float speed, float start, float distance) {
+        float time = distance / speed;
+        float progress = person.timeInState() / time;
+        progress = Math.min(progress, 1);
+        setX(start + distance * progress);
+        return progress;
+    }
+
     /**
      * distance required to traverse from lobby into elevator (or vice versa)
      */
@@ -160,10 +165,11 @@ public class PersonWidget extends FrameLayout {
         if (multiWindowDividerSize.getValue() == null) {
             return Float.MAX_VALUE;
         }
+        Resources res = getResources();
         return multiWindowDividerSize.getValue()
-                + getResources().getDimension(R.dimen.person_size)
-                + getResources().getDimension(R.dimen.lobby_doors_width)
-                + getResources().getDimension(R.dimen.elevator_doors_width);
+                + res.getDimension(R.dimen.person_size)
+                + res.getDimension(R.dimen.lobby_doors_width)
+                + res.getDimension(R.dimen.elevator_doors_width);
     }
 
 }
