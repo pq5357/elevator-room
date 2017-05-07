@@ -152,7 +152,13 @@ public class PersonWidget extends FrameLayout {
                     float roomWidth = parentView.getMeasuredWidth() - res.getDimension(R.dimen.lobby_doors_width);
                     float crossProgress = moveX(speed, -mySize, roomWidth);
                     // if person has reached doors and they are open, then person enters elevator
-                    if (crossProgress == 1 && doorsOpen.getValue() && currentFloor.getValue() == person.getCurrentFloor()) {
+                    if (crossProgress == 1) {
+                        person.setCurrentState(Person.State.LOBBY_WAITING);
+                    }
+                    break;
+                case LOBBY_WAITING:
+                    setX(parentView.getMeasuredWidth() - mySize - res.getDimension(R.dimen.lobby_doors_width));
+                    if (doorsOpen.getValue() && currentFloor.getValue() == person.getCurrentFloor()) {
                         person.setCurrentState(Person.State.IN_DOOR);
                     }
                     break;
