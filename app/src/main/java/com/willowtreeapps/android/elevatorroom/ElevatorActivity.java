@@ -117,6 +117,7 @@ public class ElevatorActivity extends LifecycleActivity {
     @OnClick(R.id.btn_start)
     public void clickStartGame() {
         viewModel.recordMinPressure();
+        gameStateManager.doorsOpen.setValue(false);
         switch (gameStateManager.gameState.getValue()) {
             case INIT:
                 gameStateManager.gameState.setValue(CALIBRATION);

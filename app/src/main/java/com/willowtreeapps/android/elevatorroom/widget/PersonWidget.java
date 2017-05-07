@@ -10,17 +10,19 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.willowtreeapps.android.elevatorroom.R;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 
-import java.util.Random;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.willowtreeapps.android.elevatorroom.persistence.Person.State.ELEVATOR_GOAL_FLOOR;
+import static com.willowtreeapps.android.elevatorroom.persistence.Person.State.ELEVATOR_POST_PRESS;
 import static com.willowtreeapps.android.elevatorroom.persistence.Person.State.ELEVATOR_PRE_PRESS;
 
 /**
@@ -36,7 +38,8 @@ public class PersonWidget extends FrameLayout {
     @BindView(R.id.background) View background;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
 
-    Random random = new Random();
+    private final float preferredX = centeredRandom() * 0.4f + 0.15f; // where this person will choose to stand while waiting in the elevator
+    private final float preferredY = centeredRandom() * 0.6f + 0.2f; // somewhere in the center 50% of the available space
     private Person person;
     private boolean belongsToLobby; // this view is rendered in the Lobby window (as opposed to the Elevator window)
     private LiveData<Integer> currentFloor;
@@ -81,6 +84,12 @@ public class PersonWidget extends FrameLayout {
         this.person = person;
         background.setBackground(person.getAppearance());
         return true;
+    }
+
+    private static float centeredRandom() {
+        double random = 0.5 +
+                Math.min(Math.random(), Math.random()) * (Math.random() > 0.5 ? 0.5 : -0.5);
+        return (float) random;
     }
 
     public void update() {
@@ -168,8 +177,23 @@ public class PersonWidget extends FrameLayout {
                 }
                 break;
             case ELEVATOR_PRE_PRESS:
+                setX(baseLineX);
+                float startCenter = (parentView.getMeasuredHeight() - mySize) / 2.0f;
+                float distanceToPanel = res.getDimension(R.dimen.elevator_panel_offset) + res.getDimension(R.dimen.elevator_panel_size) / 2;
+                float panelProgress = moveY(speed, startCenter, distanceToPanel);
+                if (panelProgress == 1) {
+                    person.setCurrentState(ELEVATOR_POST_PRESS);
+                }
                 break;
             case ELEVATOR_POST_PRESS:
+                float startPanel = (parentView.getMeasuredHeight() - mySize) / 2.0f
+                        + res.getDimension(R.dimen.elevator_panel_offset) + res.getDimension(R.dimen.elevator_panel_size) / 2;
+                float progress = moveXY(speed, baseLineX, startPanel,
+                        parentView.getMeasuredWidth() * preferredX - baseLineX,
+                        parentView.getMeasuredHeight() * preferredY - startPanel);
+                if (progress == 1) {
+                    person.setCurrentState(ELEVATOR_GOAL_FLOOR);
+                }
                 break;
             case ELEVATOR_GOAL_FLOOR:
                 break;
@@ -181,6 +205,26 @@ public class PersonWidget extends FrameLayout {
         float progress = person.timeInState() / time;
         progress = Math.min(progress, 1);
         setX(start + distance * progress);
+        return progress;
+    }
+
+    private static final Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
+    private static final float EXTRA_TIME = 1.2f; // extra time to account for interpolation
+
+    private float moveY(float speed, float start, float distance) {
+        float time = distance * EXTRA_TIME / speed;
+        float progress = person.timeInState() / time;
+        progress = Math.min(progress, 1);
+        setY(start + distance * INTERPOLATOR.getInterpolation(progress));
+        return progress;
+    }
+
+    private float moveXY(float speed, float startX, float startY, float dx, float dy) {
+        float time = (float) (Math.sqrt(dx * dx + dy * dy) / speed) * EXTRA_TIME;
+        float progress = person.timeInState() / time;
+        progress = Math.min(progress, 1);
+        setX(startX + dx * INTERPOLATOR.getInterpolation(progress));
+        setY(startY + dy * INTERPOLATOR.getInterpolation(progress));
         return progress;
     }
 
