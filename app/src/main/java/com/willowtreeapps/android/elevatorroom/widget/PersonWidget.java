@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -128,7 +129,11 @@ public class PersonWidget extends FrameLayout {
             switch (person.getCurrentState()) {
                 case LOBBY:
                     // walk from elevator doors to stage left
-                    person.gone();
+                    float roomWidth = parentView.getMeasuredWidth() - res.getDimension(R.dimen.lobby_doors_width);
+                    float crossProgress = moveX(speed, roomWidth - mySize, -roomWidth);
+                    if (crossProgress == 1) {
+                        person.gone();
+                    }
                     break;
                 case IN_DOOR:
                     // walk from the elevator into the lobby
@@ -225,23 +230,25 @@ public class PersonWidget extends FrameLayout {
         return progress;
     }
 
-    private static final Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
-    private static final float EXTRA_TIME = 1.2f; // extra time to account for interpolation
+    private static final Interpolator INTERPOLATOR_Y = new AccelerateDecelerateInterpolator();
+    private static final float EXTRA_TIME = 1.3f; // extra time to account for interpolation
 
     private float moveY(float speed, float start, float distance) {
         float time = Math.abs(distance) * EXTRA_TIME / speed;
         float progress = person.timeInState() / time;
         progress = Math.min(progress, 1);
-        setY(start + distance * INTERPOLATOR.getInterpolation(progress));
+        setY(start + distance * INTERPOLATOR_Y.getInterpolation(progress));
         return progress;
     }
+
+    private static final Interpolator INTERPOLATOR_XY = new AccelerateInterpolator();
 
     private float moveXY(float speed, float startX, float startY, float dx, float dy) {
         float time = (float) (Math.sqrt(dx * dx + dy * dy) / speed) * EXTRA_TIME;
         float progress = person.timeInState() / time;
         progress = Math.min(progress, 1);
-        setX(startX + dx * INTERPOLATOR.getInterpolation(progress));
-        setY(startY + dy * INTERPOLATOR.getInterpolation(progress));
+        setX(startX + dx * INTERPOLATOR_XY.getInterpolation(progress));
+        setY(startY + dy * INTERPOLATOR_XY.getInterpolation(progress));
         return progress;
     }
 

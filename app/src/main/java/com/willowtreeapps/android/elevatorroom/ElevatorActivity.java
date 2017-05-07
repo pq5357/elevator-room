@@ -49,6 +49,7 @@ public class ElevatorActivity extends LifecycleActivity {
         gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this);
         setupViews();
+        gameStateManager.multiWindowDividerSize.setRightView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
@@ -57,6 +58,7 @@ public class ElevatorActivity extends LifecycleActivity {
         viewModel.writePressureToDatabase(this);
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.activePeople().observe(this, view::updateForPeople);
+        viewModel.barometer.observe(this, aFloat -> btnStart.setEnabled(true));
         viewModel.barometer.getGroundPressure().observe(this, aFloat -> {
             if (gameStateManager.gameState.getValue() == CALIBRATION) {
                 gameStateManager.gameState.setValue(PLAYING);
@@ -66,10 +68,10 @@ public class ElevatorActivity extends LifecycleActivity {
             pressureIndicator.setProgress(integer, true);
         });
         viewModel.currentFloorLive.observe(this, this::setCurrentFloor);
-        gameStateManager.multiWindowDividerSize.setRightView(this, rootView);
     }
 
     private void setupViews() {
+        btnStart.setEnabled(false); // disable until pressure reading starts
         toolbar.removeAllViews();
         floorIndicators.clear();
         LayoutInflater layoutInflater = LayoutInflater.from(this);
