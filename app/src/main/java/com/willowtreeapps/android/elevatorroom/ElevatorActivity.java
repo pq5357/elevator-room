@@ -22,9 +22,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.disposables.Disposables;
 
 import static com.willowtreeapps.android.elevatorroom.GameStateManager.GameState.CALIBRATION;
 import static com.willowtreeapps.android.elevatorroom.GameStateManager.GameState.PLAYING;
@@ -35,7 +32,6 @@ public class ElevatorActivity extends LifecycleActivity {
     private ElevatorView view;
     private Unbinder unbinder;
     private GameStateManager gameStateManager;
-    private Disposable floorDisposable = Disposables.disposed();
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView messageText;
@@ -56,8 +52,8 @@ public class ElevatorActivity extends LifecycleActivity {
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
-        view = new ElevatorView(this);
         viewModel = ViewModelProviders.of(this).get(ElevatorViewModel.class);
+        view = new ElevatorView(this, viewModel.currentFloorLive);
         viewModel.writePressureToDatabase(this);
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.activePeople().observe(this, view::updateForPeople);
@@ -69,11 +65,7 @@ public class ElevatorActivity extends LifecycleActivity {
         viewModel.getCurrentPressurePercentage().observe(this, integer -> {
             pressureIndicator.setProgress(integer, true);
         });
-        floorDisposable.dispose();
-        floorDisposable = viewModel.currentFloor()
-                .map(VisitedFloor::getFloor)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::setCurrentFloor);
+        viewModel.currentFloorLive.observe(this, this::setCurrentFloor);
         gameStateManager.multiWindowDividerSize.setRightView(this, rootView);
     }
 
@@ -156,7 +148,6 @@ public class ElevatorActivity extends LifecycleActivity {
         if (unbinder != null) {
             unbinder.unbind();
         }
-        floorDisposable.dispose();
     }
 
 }

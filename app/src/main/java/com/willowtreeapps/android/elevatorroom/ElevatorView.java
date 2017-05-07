@@ -1,6 +1,7 @@
 package com.willowtreeapps.android.elevatorroom;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
 
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
@@ -13,14 +14,17 @@ import java.util.List;
 
 public class ElevatorView extends BaseGameView {
 
-    public ElevatorView(Activity activity) {
+    private final LiveData<Integer> currentFloor;
+
+    public ElevatorView(Activity activity, LiveData<Integer> currentFloor) {
         super(activity);
+        this.currentFloor = currentFloor;
     }
 
     @Override
     protected PersonWidget createNewPersonWidget() {
         return new PersonWidget(context).init(false,
-                gameStateManager.multiWindowDividerSize, null, doorsOpen);
+                gameStateManager.multiWindowDividerSize, currentFloor, doorsOpen);
     }
 
     @Override
