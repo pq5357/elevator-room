@@ -1,4 +1,4 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.livedata;
 
 import android.app.Service;
 import android.arch.lifecycle.LiveData;
@@ -6,6 +6,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+
+import com.willowtreeapps.android.elevatorroom.MyApplication;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

@@ -1,9 +1,13 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.lobby;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.text.format.DateUtils;
 
+import com.willowtreeapps.android.elevatorroom.MyApplication;
+import com.willowtreeapps.android.elevatorroom.RxUtil;
+import com.willowtreeapps.android.elevatorroom.elevator.ElevatorViewModel;
+import com.willowtreeapps.android.elevatorroom.livedata.LiveDataRx;
 import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;

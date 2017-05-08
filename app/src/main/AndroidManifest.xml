@@ -13,12 +13,12 @@
         android:supportsRtl="true"
         android:theme="@style/GameTheme">
         <activity
-            android:name=".LobbyActivity"
+            android:name=".lobby.LobbyActivity"
             android:label="@string/lobby"
             android:theme="@style/GameTheme">
         </activity>
         <activity
-            android:name=".ElevatorActivity"
+            android:name=".elevator.ElevatorActivity"
             android:label="@string/elevator"
             android:theme="@style/GameTheme">
         </activity>

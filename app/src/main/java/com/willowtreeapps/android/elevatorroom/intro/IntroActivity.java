@@ -7,11 +7,11 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.willowtreeapps.android.elevatorroom.DisplayUtil;
-import com.willowtreeapps.android.elevatorroom.ElevatorActivity;
-import com.willowtreeapps.android.elevatorroom.LobbyActivity;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
 import com.willowtreeapps.android.elevatorroom.RxUtil;
+import com.willowtreeapps.android.elevatorroom.elevator.ElevatorActivity;
+import com.willowtreeapps.android.elevatorroom.lobby.LobbyActivity;
 
 import java.util.concurrent.TimeUnit;
 
