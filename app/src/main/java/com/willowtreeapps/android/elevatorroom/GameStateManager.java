@@ -31,22 +31,32 @@ public class GameStateManager {
 
     public static class MultiWindowDivider extends LiveData<Integer> {
 
-        private int left = -1;
-        private int right = -1;
+        private int left;
+        private int right;
 
-        public void setLeftView(LifecycleOwner lifecycleOwner, final View view) {
-            new ViewTreeLiveData(view).observe(lifecycleOwner, aVoid -> {
+        public void setLeftView(final LifecycleOwner lifecycleOwner, final View view) {
+            left = Integer.MIN_VALUE;
+            final ViewTreeLiveData liveData = new ViewTreeLiveData(view);
+            liveData.observe(lifecycleOwner, aVoid -> {
                 Rect outRect = new Rect();
                 view.getWindowVisibleDisplayFrame(outRect);
+                if (left > 0 && left == outRect.right + 1) { // got same value twice. stop listening
+                    liveData.removeObservers(lifecycleOwner);
+                }
                 left = outRect.right + 1;
                 update();
             });
         }
 
-        public void setRightView(LifecycleOwner lifecycleOwner, final View view) {
-            new ViewTreeLiveData(view).observe(lifecycleOwner, aVoid -> {
+        public void setRightView(final LifecycleOwner lifecycleOwner, final View view) {
+            right = Integer.MIN_VALUE;
+            final ViewTreeLiveData liveData = new ViewTreeLiveData(view);
+            liveData.observe(lifecycleOwner, aVoid -> {
                 Rect outRect = new Rect();
                 view.getWindowVisibleDisplayFrame(outRect);
+                if (right > 0 && right == outRect.left - 1) { // got same value twice. stop listening
+                    liveData.removeObservers(lifecycleOwner);
+                }
                 right = outRect.left - 1;
                 update();
             });

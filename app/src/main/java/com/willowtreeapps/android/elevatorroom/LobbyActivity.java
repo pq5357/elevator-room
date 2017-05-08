@@ -45,6 +45,7 @@ public class LobbyActivity extends LifecycleActivity {
         setContentView(R.layout.activity_lobby);
         gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this);
+        gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
@@ -53,7 +54,6 @@ public class LobbyActivity extends LifecycleActivity {
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.currentFloor.observe(this, this::updateForFloor);
         viewModel.activePeople().observe(this, view::updateForPeople);
-        gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
     }
 
     @OnClick(android.R.id.content)

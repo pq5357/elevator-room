@@ -15,10 +15,10 @@ import java.util.Queue;
 public class BarometerManager extends LiveData<Float> {
 
     private static BarometerManager sInstance;
-    private SensorManager sensorManager;
-    private GroundPressure pressureListener = new GroundPressure();
+    private final SensorManager sensorManager;
+    private final GroundPressure pressureListener = new GroundPressure();
 
-    final Queue<Float> pressures = new LinkedList<>();
+    private final Queue<Float> pressures = new LinkedList<>();
 
     private BarometerManager() {
         sensorManager = (SensorManager) MyApplication.getContext().getSystemService(Service.SENSOR_SERVICE);

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -24,6 +25,7 @@ import butterknife.ButterKnife;
 import static com.willowtreeapps.android.elevatorroom.persistence.Person.State.ELEVATOR_GOAL_FLOOR;
 import static com.willowtreeapps.android.elevatorroom.persistence.Person.State.ELEVATOR_POST_PRESS;
 import static com.willowtreeapps.android.elevatorroom.persistence.Person.State.ELEVATOR_PRE_PRESS;
+import static com.willowtreeapps.android.elevatorroom.persistence.Person.State.IN_DOOR;
 
 /**
  * Created by willowtree on 5/3/17.
@@ -39,7 +41,7 @@ public class PersonWidget extends FrameLayout {
     @BindView(R.id.progress_bar) ProgressBar progressBar;
 
     private final float preferredX = centeredRandom() * 0.4f + 0.15f; // where this person will choose to stand while waiting in the elevator
-    private final float preferredY = centeredRandom() * 0.6f + 0.2f; // somewhere in the center 50% of the available space
+    private final float preferredY = centeredRandom() * 0.6f + 0.2f; // somewhere in the center of the available space
     private Person person;
     private boolean belongsToLobby; // this view is rendered in the Lobby window (as opposed to the Elevator window)
     private LiveData<Integer> currentFloor;
@@ -93,14 +95,11 @@ public class PersonWidget extends FrameLayout {
     }
 
     public void update() {
-        if (person == null) {
+        if (person == null || currentFloor.getValue() == null || doorsOpen.getValue() == null) {
             return;
         }
         progressBar.setProgress((int) (person.timeLeft() * 1000));
         if (belongsToLobby) {
-            if (currentFloor.getValue() == null) {
-                return;
-            }
             setVisibility(currentFloor.getValue() == person.getCurrentFloor() ? VISIBLE : GONE);
             if (person.isInLobby()) {
                 updateInLobby();
@@ -108,6 +107,7 @@ public class PersonWidget extends FrameLayout {
         } else {
             setVisibility(VISIBLE);
             if (person.isInElevator()) {
+                person.setCurrentFloor(currentFloor.getValue());
                 updateInElevator();
             }
         }
@@ -115,9 +115,6 @@ public class PersonWidget extends FrameLayout {
     }
 
     private void updateInLobby() {
-        if (doorsOpen.getValue() == null) {
-            return;
-        }
         ViewParent parent = getParent();
         if (!(parent instanceof ViewGroup)) {
             return;
@@ -129,8 +126,25 @@ public class PersonWidget extends FrameLayout {
         float targetY = (parentView.getMeasuredHeight() - mySize) / 2.0f;
         setY(targetY);
         if (person.hasReachedGoal()) {
-            // walk from elevator doors to stage left
-            person.gone();
+            switch (person.getCurrentState()) {
+                case LOBBY:
+                    // walk from elevator doors to stage left
+                    float roomWidth = parentView.getMeasuredWidth() - res.getDimension(R.dimen.lobby_doors_width);
+                    float crossProgress = moveX(speed, roomWidth - mySize, -roomWidth);
+                    if (crossProgress == 1) {
+                        person.gone();
+                    }
+                    break;
+                case IN_DOOR:
+                    // walk from the elevator into the lobby
+                    float startAtDoor = parentView.getMeasuredWidth() - mySize - res.getDimension(R.dimen.lobby_doors_width);
+                    float traverseDoorsDistance = getTraverseDoorsDistance();
+                    float progress = moveX(speed, startAtDoor + traverseDoorsDistance, -traverseDoorsDistance);
+                    if (progress == 1) {
+                        person.setCurrentState(Person.State.LOBBY);
+                    }
+                    break;
+            }
         } else {
             switch (person.getCurrentState()) {
                 case LOBBY:
@@ -138,7 +152,13 @@ public class PersonWidget extends FrameLayout {
                     float roomWidth = parentView.getMeasuredWidth() - res.getDimension(R.dimen.lobby_doors_width);
                     float crossProgress = moveX(speed, -mySize, roomWidth);
                     // if person has reached doors and they are open, then person enters elevator
-                    if (crossProgress == 1 && doorsOpen.getValue()) {
+                    if (crossProgress == 1) {
+                        person.setCurrentState(Person.State.LOBBY_WAITING);
+                    }
+                    break;
+                case LOBBY_WAITING:
+                    setX(parentView.getMeasuredWidth() - mySize - res.getDimension(R.dimen.lobby_doors_width));
+                    if (doorsOpen.getValue() && currentFloor.getValue() == person.getCurrentFloor()) {
                         person.setCurrentState(Person.State.IN_DOOR);
                     }
                     break;
@@ -148,7 +168,6 @@ public class PersonWidget extends FrameLayout {
                     moveX(speed, startAtDoor, getTraverseDoorsDistance());
                     break;
             }
-
         }
     }
 
@@ -162,12 +181,16 @@ public class PersonWidget extends FrameLayout {
         float mySize = res.getDimension(R.dimen.person_size);
         float speed = mySize / TIME_TO_STEP; // pixels per ms
         float baseLineX = res.getDimension(R.dimen.elevator_doors_width); // x values start right after elevator doors
+        int parentWidth = parentView.getMeasuredWidth();
+        int parentHeight = parentView.getMeasuredHeight();
+        float centerY = (parentHeight - mySize) / 2.0f;
         switch (person.getCurrentState()) {
             case IN_DOOR:
-                setY((parentView.getMeasuredHeight() - mySize) / 2.0f);
+                setY(centerY);
                 float traverseDoorsDistance = getTraverseDoorsDistance();
                 if (person.hasReachedGoal()) {
                     // exiting elevator
+                    moveX(speed, baseLineX, -traverseDoorsDistance);
                 } else {
                     // entering elevator
                     float enterProgress = moveX(speed, baseLineX - traverseDoorsDistance, traverseDoorsDistance);
@@ -178,53 +201,60 @@ public class PersonWidget extends FrameLayout {
                 break;
             case ELEVATOR_PRE_PRESS:
                 setX(baseLineX);
-                float startCenter = (parentView.getMeasuredHeight() - mySize) / 2.0f;
                 float distanceToPanel = res.getDimension(R.dimen.elevator_panel_offset) + res.getDimension(R.dimen.elevator_panel_size) / 2;
-                float panelProgress = moveY(speed, startCenter, distanceToPanel);
+                float panelProgress = moveY(speed, centerY, distanceToPanel);
                 if (panelProgress == 1) {
                     person.setCurrentState(ELEVATOR_POST_PRESS);
                 }
                 break;
             case ELEVATOR_POST_PRESS:
-                float startPanel = (parentView.getMeasuredHeight() - mySize) / 2.0f
-                        + res.getDimension(R.dimen.elevator_panel_offset) + res.getDimension(R.dimen.elevator_panel_size) / 2;
+                float startPanel = centerY + res.getDimension(R.dimen.elevator_panel_offset)
+                        + res.getDimension(R.dimen.elevator_panel_size) / 2;
                 float progress = moveXY(speed, baseLineX, startPanel,
-                        parentView.getMeasuredWidth() * preferredX - baseLineX,
-                        parentView.getMeasuredHeight() * preferredY - startPanel);
-                if (progress == 1) {
+                        parentWidth * preferredX - baseLineX,
+                        parentHeight * preferredY - startPanel);
+                if (progress == 1 && person.hasReachedGoal()) {
                     person.setCurrentState(ELEVATOR_GOAL_FLOOR);
                 }
                 break;
             case ELEVATOR_GOAL_FLOOR:
+                float progressTowardDoor = moveXY(speed, parentWidth * preferredX, parentHeight * preferredY,
+                        baseLineX - parentWidth * preferredX,
+                        centerY - parentHeight * preferredY);
+                if (progressTowardDoor == 1 && person.hasReachedGoal() && doorsOpen.getValue()) {
+                    person.setCurrentState(IN_DOOR);
+                }
                 break;
         }
     }
 
     private float moveX(float speed, float start, float distance) {
-        float time = distance / speed;
+        float time = Math.abs(distance) / speed;
         float progress = person.timeInState() / time;
         progress = Math.min(progress, 1);
         setX(start + distance * progress);
         return progress;
     }
 
-    private static final Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
-    private static final float EXTRA_TIME = 1.2f; // extra time to account for interpolation
+    private static final Interpolator INTERPOLATOR_Y = new AccelerateDecelerateInterpolator();
+    private static final float EXTRA_TIME = 1.3f; // extra time to account for interpolation
 
     private float moveY(float speed, float start, float distance) {
-        float time = distance * EXTRA_TIME / speed;
+        float time = Math.abs(distance) * EXTRA_TIME / speed;
         float progress = person.timeInState() / time;
         progress = Math.min(progress, 1);
-        setY(start + distance * INTERPOLATOR.getInterpolation(progress));
+        setY(start + distance * INTERPOLATOR_Y.getInterpolation(progress));
         return progress;
     }
+
+    private static final Interpolator INTERPOLATOR_XY = new AccelerateInterpolator();
 
     private float moveXY(float speed, float startX, float startY, float dx, float dy) {
         float time = (float) (Math.sqrt(dx * dx + dy * dy) / speed) * EXTRA_TIME;
         float progress = person.timeInState() / time;
         progress = Math.min(progress, 1);
-        setX(startX + dx * INTERPOLATOR.getInterpolation(progress));
-        setY(startY + dy * INTERPOLATOR.getInterpolation(progress));
+        setX(startX + dx * INTERPOLATOR_XY.getInterpolation(progress));
+        setY(startY + dy * INTERPOLATOR_XY.getInterpolation(progress));
         return progress;
     }
 
