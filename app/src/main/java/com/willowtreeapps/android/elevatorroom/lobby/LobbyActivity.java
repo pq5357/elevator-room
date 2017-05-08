@@ -1,4 +1,4 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.lobby;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -11,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.willowtreeapps.android.elevatorroom.GameStateManager;
+import com.willowtreeapps.android.elevatorroom.MyApplication;
+import com.willowtreeapps.android.elevatorroom.R;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 
 import java.util.concurrent.TimeUnit;

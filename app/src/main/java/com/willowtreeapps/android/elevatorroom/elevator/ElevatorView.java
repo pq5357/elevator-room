@@ -1,4 +1,4 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.elevator;
 
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.LiveData;
@@ -6,6 +6,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
+import com.willowtreeapps.android.elevatorroom.BaseGameView;
+import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.livedata.LiveDataRx;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;

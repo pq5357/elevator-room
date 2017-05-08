@@ -1,10 +1,14 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.elevator;
 
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 
+import com.willowtreeapps.android.elevatorroom.MyApplication;
+import com.willowtreeapps.android.elevatorroom.RxUtil;
+import com.willowtreeapps.android.elevatorroom.livedata.BarometerManager;
+import com.willowtreeapps.android.elevatorroom.livedata.LiveDataRx;
 import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
@@ -20,7 +24,7 @@ import static com.willowtreeapps.android.elevatorroom.GameStateManager.FRAME_LEN
 
 public class ElevatorViewModel extends ViewModel {
 
-    static final int TOTAL_FLOORS = 4;
+    public static final int TOTAL_FLOORS = 4;
     static final float FLOOR_OVERLAP = 0.2f; // 20% overlap
     public final BarometerManager barometer;
     private GameDatabase database;

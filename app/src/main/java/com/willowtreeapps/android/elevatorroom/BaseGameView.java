@@ -8,6 +8,7 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.view.ViewGroup;
 
+import com.willowtreeapps.android.elevatorroom.livedata.DistinctLiveData;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
 

@@ -1,8 +1,10 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.lobby;
 
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.MutableLiveData;
 
+import com.willowtreeapps.android.elevatorroom.BaseGameView;
+import com.willowtreeapps.android.elevatorroom.livedata.DistinctLiveData;
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
 
 /**

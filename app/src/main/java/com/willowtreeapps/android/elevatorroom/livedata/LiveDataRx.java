@@ -1,4 +1,4 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.livedata;
 
 import android.arch.lifecycle.LiveData;
 

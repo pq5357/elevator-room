@@ -1,4 +1,4 @@
-package com.willowtreeapps.android.elevatorroom;
+package com.willowtreeapps.android.elevatorroom.elevator;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -10,6 +10,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.willowtreeapps.android.elevatorroom.GameStateManager;
+import com.willowtreeapps.android.elevatorroom.MyApplication;
+import com.willowtreeapps.android.elevatorroom.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
