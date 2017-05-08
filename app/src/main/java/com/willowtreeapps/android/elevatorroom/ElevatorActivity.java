@@ -5,18 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,12 +28,10 @@ public class ElevatorActivity extends LifecycleActivity {
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView messageText;
-    @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.btn_start) Button btnStart;
     @BindView(R.id.messaging) ViewGroup messaging;
     @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.pressure_indicator) ProgressBar pressureIndicator;
-    private final List<TextView> floorIndicators = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +39,6 @@ public class ElevatorActivity extends LifecycleActivity {
         setContentView(R.layout.activity_elevator);
         gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this);
-        setupViews();
         gameStateManager.multiWindowDividerSize.setRightView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
@@ -58,6 +48,7 @@ public class ElevatorActivity extends LifecycleActivity {
         viewModel.writePressureToDatabase(this);
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.activePeople().observe(this, view::updateForPeople);
+        btnStart.setEnabled(false); // disable until pressure reading starts
         viewModel.barometer.observe(this, aFloat -> btnStart.setEnabled(true));
         viewModel.barometer.getGroundPressure().observe(this, aFloat -> {
             if (gameStateManager.gameState.getValue() == CALIBRATION) {
@@ -67,32 +58,9 @@ public class ElevatorActivity extends LifecycleActivity {
         viewModel.getCurrentPressurePercentage().observe(this, integer -> {
             pressureIndicator.setProgress(integer, true);
         });
-        viewModel.currentFloorLive.observe(this, this::setCurrentFloor);
     }
 
-    private void setupViews() {
-        btnStart.setEnabled(false); // disable until pressure reading starts
-        toolbar.removeAllViews();
-        floorIndicators.clear();
-        LayoutInflater layoutInflater = LayoutInflater.from(this);
-        for (int i = 0; i < ElevatorViewModel.TOTAL_FLOORS; i++) {
-            VisitedFloor floor = new VisitedFloor(i);
-            TextView textView = (TextView) layoutInflater.inflate(R.layout.elevator_indicator_textview, toolbar, false);
-            textView.setText(floor.getFloorString());
-            floorIndicators.add(textView);
-            toolbar.addView(textView);
-        }
-    }
 
-    private void setCurrentFloor(int floor) {
-        for (int i = 0; i < floorIndicators.size(); i++) {
-            if (i == floor) {
-                floorIndicators.get(i).setBackgroundResource(R.drawable.lighted_circle);
-            } else {
-                floorIndicators.get(i).setBackgroundResource(R.drawable.dim_circle);
-            }
-        }
-    }
 
     private void updateDoors(boolean open) {
         float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
