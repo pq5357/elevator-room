@@ -10,7 +10,7 @@ import android.view.ViewTreeObserver;
  * currently just reports onWindowAttached. could add more events as needed
  */
 
-public class ViewTreeLiveData extends LiveData<Void> implements ViewTreeObserver.OnWindowAttachListener {
+public class ViewTreeLiveData extends LiveData<Void> implements ViewTreeObserver.OnGlobalLayoutListener {
 
     private View view;
 
@@ -21,24 +21,18 @@ public class ViewTreeLiveData extends LiveData<Void> implements ViewTreeObserver
     @Override
     protected void onActive() {
         super.onActive();
-        view.getViewTreeObserver().addOnWindowAttachListener(this);
+        view.getViewTreeObserver().addOnGlobalLayoutListener(this);
     }
 
     @Override
     protected void onInactive() {
         super.onInactive();
-        view.getViewTreeObserver().removeOnWindowAttachListener(this);
+        view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
     }
 
     @Override
-    public void onWindowAttached() {
+    public void onGlobalLayout() {
         setValue(null);
-
-    }
-
-    @Override
-    public void onWindowDetached() {
-        // don't care
     }
 
 }

@@ -29,6 +29,7 @@ public class Person {
 
     public enum State {
         LOBBY, // in the lobby
+        LOBBY_WAITING, // in the lobby, has pressed elevator button
         IN_DOOR, // walking from lobby into elevator or vice versa
         ELEVATOR_PRE_PRESS, // just entered elevator, walking towards buttons
         ELEVATOR_POST_PRESS, // just pressed floor button, walking towards center of elevator
@@ -96,6 +97,7 @@ public class Person {
 
     public boolean isInLobby() {
         return currentState == State.LOBBY
+                || currentState == State.LOBBY_WAITING
                 || currentState == State.IN_DOOR;
     }
 
@@ -173,7 +175,7 @@ public class Person {
         return deadline;
     }
 
-    protected int getGoal() {
+    public int getGoal() {
         return goal;
     }
 
