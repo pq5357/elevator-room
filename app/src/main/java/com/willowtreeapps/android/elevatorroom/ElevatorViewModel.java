@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Flowable;
 import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 import timber.log.Timber;
 
@@ -26,6 +25,7 @@ public class ElevatorViewModel extends ViewModel {
     public final BarometerManager barometer;
     private GameDatabase database;
     public final LiveData<Long> gameLoopTimer;
+    public final LiveData<Integer> currentFloorLive;
     private VisitedFloor currentFloor;
     private Float minPressure; // highest altitude
     private Float pressureRange;
@@ -80,6 +80,7 @@ public class ElevatorViewModel extends ViewModel {
         barometer = BarometerManager.getInstance();
         database = MyApplication.getGameDatabase();
         gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(FRAME_LENGTH, TimeUnit.MILLISECONDS));
+        currentFloorLive = LiveDataRx.fromEternalPublisher(database.currentFloor().map(VisitedFloor::getFloor));
     }
 
     public void recordMinPressure() {
@@ -94,10 +95,6 @@ public class ElevatorViewModel extends ViewModel {
         database.currentFloor().subscribe(floor -> currentFloor = floor);
         barometer.observe(owner, pressureObserver);
         barometer.getGroundPressure().observe(owner, groundPressureObserver);
-    }
-
-    public Flowable<VisitedFloor> currentFloor() {
-        return database.currentFloor();
     }
 
     public LiveData<List<Person>> activePeople() {
