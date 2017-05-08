@@ -12,6 +12,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.text.TextUtils;
 
 import com.willowtreeapps.android.elevatorroom.MyApplication;
+import com.willowtreeapps.android.elevatorroom.RxUtil;
 
 import java.util.Random;
 
@@ -203,7 +204,7 @@ public class Person {
             return;
         }
         dirty = false;
-        MyApplication.getGameDatabase().personDao().updatePerson(this);
+        RxUtil.runInBg(() -> MyApplication.getGameDatabase().personDao().updatePerson(this));
     }
 
     public static class StateConverter {

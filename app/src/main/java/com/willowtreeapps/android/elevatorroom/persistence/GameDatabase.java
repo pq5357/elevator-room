@@ -7,6 +7,7 @@ import android.arch.persistence.room.RxRoom;
 import java.util.List;
 
 import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by willowtree on 4/21/17.
@@ -30,12 +31,13 @@ public abstract class GameDatabase extends RoomDatabase {
                         currentFloor = new VisitedFloor(0);
                     }
                     return currentFloor;
-                });
+                }).subscribeOn(Schedulers.io());
     }
 
     public Flowable<List<Person>> activePeople() {
         return RxRoom.createFlowable(this, Person.TABLE)
-                .map(o -> personDao().loadActivePeople());
+                .map(o -> personDao().loadActivePeople())
+                .subscribeOn(Schedulers.io());
     }
 
 }

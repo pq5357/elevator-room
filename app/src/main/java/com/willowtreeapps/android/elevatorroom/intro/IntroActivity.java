@@ -11,6 +11,7 @@ import com.willowtreeapps.android.elevatorroom.ElevatorActivity;
 import com.willowtreeapps.android.elevatorroom.LobbyActivity;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.RxUtil;
 
 import java.util.concurrent.TimeUnit;
 
@@ -78,8 +79,10 @@ public class IntroActivity extends LifecycleActivity {
 
     void clearPreviousData() {
         disposable.dispose();
-        MyApplication.getGameDatabase().floorDao().deleteAllFloors();
-        MyApplication.getGameDatabase().personDao().deleteAllPeople();
+        RxUtil.runInBg(() -> {
+            MyApplication.getGameDatabase().floorDao().deleteAllFloors();
+            MyApplication.getGameDatabase().personDao().deleteAllPeople();
+        });
     }
 
     @Override
