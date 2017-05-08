@@ -11,11 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
-import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -32,14 +29,13 @@ public class LobbyActivity extends LifecycleActivity {
 
     private Unbinder unbinder;
     private LobbyViewModel viewModel;
+    private LobbyView view;
     private GameStateManager gameStateManager;
     private Disposable intervalDisposable = Disposables.disposed();
-    private Integer floorToRender;
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
     @BindView(R.id.playfield) ViewGroup playfield;
-    @BindView(R.id.persons_container) ViewGroup personsContainer;
     @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.door_lower) View doorLower;
 
@@ -49,14 +45,15 @@ public class LobbyActivity extends LifecycleActivity {
         setContentView(R.layout.activity_lobby);
         gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this);
+        gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
+        view = new LobbyView(this);
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
-        viewModel.gameLoopTimer.observe(this, this::updateWidgets);
+        viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.currentFloor.observe(this, this::updateForFloor);
-        viewModel.activePeople().observe(this, this::updateForPeople);
-        gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
+        viewModel.activePeople().observe(this, view::updateForPeople);
     }
 
     @OnClick(android.R.id.content)
@@ -77,76 +74,52 @@ public class LobbyActivity extends LifecycleActivity {
     private void updateDoors(boolean open) {
         float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
         doorUpper.animate().translationY(open ? -doorMovement : 0);
-        doorLower.animate().translationY(open ? doorMovement : 0);
+        doorLower.animate().translationY(open ? doorMovement : 0)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        view.doorsOpen.setValue(open);
+                    }
+                });
+        if (!open) { // when closing, set state to closed immediately
+            view.doorsOpen.setValue(false);
+        }
     }
 
     private final int fadeDuration = 200;
     private AnimatorListenerAdapter fadeOutListener = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationEnd(Animator animation) {
-            floorToRender = viewModel.currentFloor.getValue().getFloor();
-            playfield.animate().alpha(1).setDuration(fadeDuration)
-                    .setListener(null)
-                    .start();
+            view.floorToRender.setValue(viewModel.currentFloor.getValue().getFloor());
+            if (playfield == null) {
+                return;
+            }
+            playfield.animate().alpha(1).setDuration(fadeDuration).setListener(null);
         }
     };
 
     private void updateForFloor(VisitedFloor visitedFloor) {
         label.setText(getString(R.string.floor_n, visitedFloor.getFloorString()));
-        if (floorToRender == null) {
-            floorToRender = visitedFloor.getFloor();
+        if (view.floorToRender.getValue() == null
+                || view.floorToRender.getValue() == visitedFloor.getFloor()) {
+            view.floorToRender.setValue(visitedFloor.getFloor());
             return;
         }
-        playfield.animate().alpha(0).setDuration(fadeDuration)
-                .setListener(fadeOutListener)
-                .start();
-    }
-
-    private void updateForPeople(List<Person> people) {
-        int childCount = personsContainer.getChildCount();
-        for (int childIndex = childCount - 1; childIndex >= 0; childIndex--) {
-            PersonWidget widget = (PersonWidget) personsContainer.getChildAt(childIndex);
-            boolean found = false;
-            for (Person person : people) {
-                if (widget.setPerson(person)) {
-                    people.remove(person); // person has been accounted for
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                // didn't match an active person, so remove it from playfield
-                personsContainer.removeView(widget);
-            }
-        }
-        // add persons that haven't been accounted for
-        for (Person person : people) {
-            PersonWidget widget = new PersonWidget(this);
-            personsContainer.addView(widget);
-            widget.setPerson(person);
-        }
-        updateWidgets(null);
-    }
-
-    private void updateWidgets(Object o) {
-        for (int i = 0; i < personsContainer.getChildCount(); i++) {
-            PersonWidget widget = (PersonWidget) personsContainer.getChildAt(i);
-            widget.update();
-            if (floorToRender != null) {
-                widget.onlyShowCurrentFloor(floorToRender);
-            }
-        }
+        playfield.animate().alpha(0).setDuration(fadeDuration).setListener(fadeOutListener);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        // TODO migrate this to a LiveData in the view model
         intervalDisposable.dispose();
-        intervalDisposable = Observable.interval(1, TimeUnit.SECONDS)
+        intervalDisposable = Observable.interval(3, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.computation())
                 .subscribe(aLong -> {
-                    viewModel.fakeNew();
+                    if (gameStateManager.gameState.getValue() == GameStateManager.GameState.PLAYING) {
+                        viewModel.fakeNew();
+                    }
                 });
 //        person.setOnClickListener(v -> startDrag());
     }

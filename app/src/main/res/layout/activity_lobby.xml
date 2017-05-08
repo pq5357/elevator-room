@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/lobby"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
@@ -25,33 +24,21 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_weight="1">
 
-        <FrameLayout
-            android:id="@+id/playfield"
-            android:layout_width="0dp"
+        <ImageView
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <FrameLayout
-                android:id="@+id/decor_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-            <FrameLayout
-                android:id="@+id/persons_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        </FrameLayout>
+            android:scaleType="centerCrop"
+            android:src="@drawable/lobby"/>
 
         <RelativeLayout
             android:layout_width="@dimen/lobby_doors_width"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_gravity="right">
 
             <Space
                 android:id="@+id/elevator_center"
@@ -82,5 +69,23 @@
 
         </RelativeLayout>
 
-    </LinearLayout>
+        <FrameLayout
+            android:id="@+id/playfield"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/decor_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <FrameLayout
+                android:id="@+id/persons_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </FrameLayout>
+
+    </FrameLayout>
+
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.willowtreeapps.android.elevatorroom.persistence;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverter;
 import android.arch.persistence.room.TypeConverters;
@@ -27,28 +28,51 @@ public class Person {
     public static final int SCORE_FACTOR = 100; // milliseconds per point
 
     public enum State {
-        LOBBY, ELEVATOR_PRE_PRESS, ELEVATOR_POST_PRESS
+        LOBBY, // in the lobby
+        LOBBY_WAITING, // in the lobby, has pressed elevator button
+        IN_DOOR, // walking from lobby into elevator or vice versa
+        ELEVATOR_PRE_PRESS, // just entered elevator, walking towards buttons
+        ELEVATOR_POST_PRESS, // just pressed floor button, walking towards center of elevator
+        ELEVATOR_GOAL_FLOOR // elevator has arrived on desired floor, walking towards elevator doors and waiting for doors to open
     }
 
     @PrimaryKey(autoGenerate = true)
-    private long id;
+    private final long id;
     private State currentState;
     private int style; // appearance of this person
     private boolean gone; // person has exited the elevator
-    private long birth; // timestamp when created
-    private long deadline; // timestamp when need to reach goal
+    private final long birth; // timestamp when created
+    private final long deadline; // timestamp when need to reach goal
     private long updated; // timestamp when currentState is updated
-    private int goal; // target floor
+    private final int goal; // target floor
     private int currentFloor; // current location when
 
+    @Ignore private boolean dirty;
+
+    protected Person(long id, State currentState, int style, boolean gone, long birth, long deadline, long updated, int goal, int currentFloor) {
+        this.id = id;
+        this.currentState = currentState;
+        this.style = style;
+        this.gone = gone;
+        this.birth = birth;
+        this.deadline = deadline;
+        this.updated = updated;
+        this.goal = goal;
+        this.currentFloor = currentFloor;
+        dirty = false;
+    }
+
+    @Ignore
     public Person(long deadline, int goal, int currentFloor) {
+        id = 0;
         this.birth = System.currentTimeMillis();
         this.deadline = deadline;
         this.goal = goal;
-        this.currentFloor = currentFloor;
+        setCurrentFloor(currentFloor);
         setCurrentState(State.LOBBY);
         gone = false;
         style = randomStyle();
+        dirty = false;
     }
 
     private int randomStyle() {
@@ -57,15 +81,31 @@ public class Person {
         return Color.rgb(rand.nextInt(200) + 40, rand.nextInt(200) + 40, rand.nextInt(200) + 40);
     }
 
+    private void setDirty() {
+        dirty = true;
+    }
+
     /**
      * tell person to disappear
      */
     public void gone() {
-        gone = true;
+        if (!gone) {
+            gone = true;
+            setDirty();
+        }
+    }
+
+    public boolean isInLobby() {
+        return currentState == State.LOBBY
+                || currentState == State.LOBBY_WAITING
+                || currentState == State.IN_DOOR;
     }
 
     public boolean isInElevator() {
-        return currentState != State.LOBBY;
+        return currentState == State.ELEVATOR_PRE_PRESS
+                || currentState == State.ELEVATOR_POST_PRESS
+                || currentState == State.ELEVATOR_GOAL_FLOOR
+                || currentState == State.IN_DOOR;
     }
 
     public boolean hasReachedGoal() {
@@ -107,13 +147,8 @@ public class Person {
         return (int) ((deadline - System.currentTimeMillis()) / SCORE_FACTOR + 1);
     }
 
-
     public long getId() {
         return id;
-    }
-
-    protected void setId(long id) {
-        this.id = id;
     }
 
     public State getCurrentState() {
@@ -124,6 +159,7 @@ public class Person {
         if (this.currentState != currentState) {
             this.currentState = currentState;
             updated = System.currentTimeMillis();
+            setDirty();
         }
     }
 
@@ -131,32 +167,16 @@ public class Person {
         return gone;
     }
 
-    protected void setGone(boolean gone) {
-        this.gone = gone;
-    }
-
     protected long getBirth() {
         return birth;
-    }
-
-    protected void setBirth(long birth) {
-        this.birth = birth;
     }
 
     protected long getDeadline() {
         return deadline;
     }
 
-    protected void setDeadline(long deadline) {
-        this.deadline = deadline;
-    }
-
-    protected int getGoal() {
+    public int getGoal() {
         return goal;
-    }
-
-    protected void setGoal(int goal) {
-        this.goal = goal;
     }
 
     public int getCurrentFloor() {
@@ -164,26 +184,25 @@ public class Person {
     }
 
     public void setCurrentFloor(int currentFloor) {
-        this.currentFloor = currentFloor;
+        if (this.currentFloor != currentFloor) {
+            this.currentFloor = currentFloor;
+            setDirty();
+        }
     }
 
     protected int getStyle() {
         return style;
     }
 
-    protected void setStyle(int style) {
-        this.style = style;
-    }
-
     public long getUpdated() {
         return updated;
     }
 
-    protected void setUpdated(long updated) {
-        this.updated = updated;
-    }
-
     public void save() {
+        if (!dirty) {
+            return;
+        }
+        dirty = false;
         MyApplication.getGameDatabase().personDao().updatePerson(this);
     }
 
