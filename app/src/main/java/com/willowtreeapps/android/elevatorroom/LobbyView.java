@@ -1,6 +1,6 @@
 package com.willowtreeapps.android.elevatorroom;
 
-import android.app.Activity;
+import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.MutableLiveData;
 
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
@@ -13,7 +13,7 @@ public class LobbyView extends BaseGameView {
 
     public final MutableLiveData<Integer> floorToRender = new DistinctLiveData<>();
 
-    public LobbyView(Activity activity) {
+    public LobbyView(LifecycleActivity activity) {
         super(activity);
     }
 
