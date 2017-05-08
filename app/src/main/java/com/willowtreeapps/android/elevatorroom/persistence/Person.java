@@ -28,7 +28,12 @@ public class Person {
     public static final int SCORE_FACTOR = 100; // milliseconds per point
 
     public enum State {
-        LOBBY, ELEVATOR_PRE_PRESS, ELEVATOR_POST_PRESS
+        LOBBY, // in the lobby
+        LOBBY_WAITING, // in the lobby, has pressed elevator button
+        IN_DOOR, // walking from lobby into elevator or vice versa
+        ELEVATOR_PRE_PRESS, // just entered elevator, walking towards buttons
+        ELEVATOR_POST_PRESS, // just pressed floor button, walking towards center of elevator
+        ELEVATOR_GOAL_FLOOR // elevator has arrived on desired floor, walking towards elevator doors and waiting for doors to open
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -91,11 +96,16 @@ public class Person {
     }
 
     public boolean isInLobby() {
-        return currentState == State.LOBBY || currentState == State.ELEVATOR_PRE_PRESS;
+        return currentState == State.LOBBY
+                || currentState == State.LOBBY_WAITING
+                || currentState == State.IN_DOOR;
     }
 
     public boolean isInElevator() {
-        return currentState == State.ELEVATOR_POST_PRESS || currentState == State.ELEVATOR_PRE_PRESS;
+        return currentState == State.ELEVATOR_PRE_PRESS
+                || currentState == State.ELEVATOR_POST_PRESS
+                || currentState == State.ELEVATOR_GOAL_FLOOR
+                || currentState == State.IN_DOOR;
     }
 
     public boolean hasReachedGoal() {
@@ -165,7 +175,7 @@ public class Person {
         return deadline;
     }
 
-    protected int getGoal() {
+    public int getGoal() {
         return goal;
     }
 

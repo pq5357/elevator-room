@@ -6,20 +6,26 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 
 import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
+import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Flowable;
+import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 import timber.log.Timber;
+
+import static com.willowtreeapps.android.elevatorroom.GameStateManager.FRAME_LENGTH;
 
 public class ElevatorViewModel extends ViewModel {
 
     static final int TOTAL_FLOORS = 4;
     static final float FLOOR_OVERLAP = 0.2f; // 20% overlap
-    public BarometerManager barometer;
+    public final BarometerManager barometer;
     private GameDatabase database;
+    public final LiveData<Long> gameLoopTimer;
+    public final LiveData<Integer> currentFloorLive;
     private VisitedFloor currentFloor;
     private Float minPressure; // highest altitude
     private Float pressureRange;
@@ -73,6 +79,8 @@ public class ElevatorViewModel extends ViewModel {
     public ElevatorViewModel() {
         barometer = BarometerManager.getInstance();
         database = MyApplication.getGameDatabase();
+        gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(FRAME_LENGTH, TimeUnit.MILLISECONDS));
+        currentFloorLive = LiveDataRx.fromEternalPublisher(database.currentFloor().map(VisitedFloor::getFloor));
     }
 
     public void recordMinPressure() {
@@ -89,8 +97,8 @@ public class ElevatorViewModel extends ViewModel {
         barometer.getGroundPressure().observe(owner, groundPressureObserver);
     }
 
-    public Flowable<VisitedFloor> currentFloor() {
-        return database.currentFloor();
+    public LiveData<List<Person>> activePeople() {
+        return LiveDataRx.fromEternalPublisher(database.activePeople());
     }
 
     static class Floor {
