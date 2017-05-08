@@ -43,7 +43,8 @@ public class ElevatorViewModel extends ViewModel {
         }
         for (int i = 0; i < floors.size(); i++) {
             if (floors.get(i).isOnThisFloor(aFloat)) {
-                database.floorDao().insertFloor(new VisitedFloor(i));
+                final VisitedFloor newFloor = new VisitedFloor(i);
+                RxUtil.runInBg(() -> database.floorDao().insertFloor(newFloor));
                 break;
             }
         }
@@ -72,7 +73,7 @@ public class ElevatorViewModel extends ViewModel {
             ));
         }
         if (currentFloor.getFloor() > 0) { // set to ground floor
-            database.floorDao().insertFloor(new VisitedFloor(0));
+            RxUtil.runInBg(() -> database.floorDao().insertFloor(new VisitedFloor(0)));
         }
     };
 
