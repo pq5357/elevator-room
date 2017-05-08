@@ -14,17 +14,18 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Flowable;
 import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 
+import static com.willowtreeapps.android.elevatorroom.GameStateManager.FRAME_LENGTH;
 
 public class LobbyViewModel extends ViewModel {
 
-    private GameDatabase database;
+    private final GameDatabase database;
     public final LiveData<Long> gameLoopTimer;
     public final LiveData<VisitedFloor> currentFloor;
 
     public LobbyViewModel() {
         database = MyApplication.getGameDatabase();
         currentFloor = LiveDataRx.fromEternalPublisher(database.currentFloor());
-        gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(12, TimeUnit.MILLISECONDS));
+        gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(FRAME_LENGTH, TimeUnit.MILLISECONDS));
     }
 
     /**
