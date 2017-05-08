@@ -1,7 +1,10 @@
 package com.willowtreeapps.android.elevatorroom;
 
-import android.app.Activity;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.view.ViewGroup;
 
@@ -12,23 +15,26 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 /**
  * Created by willowtree on 5/6/17.
  */
 
-public abstract class BaseGameView {
+public abstract class BaseGameView implements LifecycleObserver {
 
     protected final Context context;
     protected final GameStateManager gameStateManager;
+    private final Unbinder unbinder;
     public final MutableLiveData<Boolean> doorsOpen = new DistinctLiveData<>();
 
     @BindView(R.id.persons_container) ViewGroup personsContainer;
 
-    public BaseGameView(Activity activity) {
+    public BaseGameView(LifecycleActivity activity) {
         context = activity;
         gameStateManager = MyApplication.getGameStateManager();
-        ButterKnife.bind(this, activity);
+        unbinder = ButterKnife.bind(this, activity);
+        activity.getLifecycle().addObserver(this);
     }
 
     public void updateForPeople(List<Person> people) {
@@ -61,6 +67,13 @@ public abstract class BaseGameView {
         for (int i = 0; i < personsContainer.getChildCount(); i++) {
             PersonWidget widget = (PersonWidget) personsContainer.getChildAt(i);
             widget.update();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    void cleanup() {
+        if (unbinder != null) {
+            unbinder.unbind();
         }
     }
 
