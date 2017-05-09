@@ -19,10 +19,12 @@ public interface PersonDao {
     @Query("SELECT * FROM " + Person.TABLE)
     List<Person> loadAllPeople();
 
-    @Query("SELECT * FROM " + Person.TABLE + " WHERE gone == 0")
+    String SELECT_ACTIVE_PEOPLE = "SELECT * FROM " + Person.TABLE + " WHERE gone == 0";
+
+    @Query(SELECT_ACTIVE_PEOPLE)
     LiveData<List<Person>> activePeople();
 
-    @Query("SELECT * FROM " + Person.TABLE + " WHERE gone == 0")
+    @Query(SELECT_ACTIVE_PEOPLE)
     List<Person> loadActivePeople();
 
     @Insert

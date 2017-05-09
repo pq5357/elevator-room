@@ -16,10 +16,12 @@ public interface FloorDao {
     @Query("SELECT * FROM " + VisitedFloor.TABLE)
     List<VisitedFloor> loadAllPastFloors();
 
-    @Query("SELECT * FROM " + VisitedFloor.TABLE + " ORDER BY id DESC LIMIT 1")
+    String SELECT_CURRENT_FLOOR = "SELECT * FROM " + VisitedFloor.TABLE + " ORDER BY id DESC LIMIT 1";
+
+    @Query(SELECT_CURRENT_FLOOR)
     LiveData<VisitedFloor> currentFloor();
 
-    @Query("SELECT * FROM " + VisitedFloor.TABLE + " ORDER BY id DESC LIMIT 1")
+    @Query(SELECT_CURRENT_FLOOR)
     VisitedFloor loadCurrentFloor();
 
     @Insert
