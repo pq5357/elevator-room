@@ -25,13 +25,8 @@ public abstract class GameDatabase extends RoomDatabase {
 
     public Flowable<VisitedFloor> currentFloor() {
         return RxRoom.createFlowable(this, VisitedFloor.TABLE)
-                .map(o -> {
-                    VisitedFloor currentFloor = floorDao().loadCurrentFloor();
-                    if (currentFloor == null) {
-                        currentFloor = new VisitedFloor(0);
-                    }
-                    return currentFloor;
-                }).subscribeOn(Schedulers.io());
+                .map(o -> floorDao().loadCurrentFloor())
+                .subscribeOn(Schedulers.io());
     }
 
     public Flowable<List<Person>> activePeople() {

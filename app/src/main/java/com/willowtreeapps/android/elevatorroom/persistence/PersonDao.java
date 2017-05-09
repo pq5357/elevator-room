@@ -1,5 +1,6 @@
 package com.willowtreeapps.android.elevatorroom.persistence;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
@@ -18,7 +19,12 @@ public interface PersonDao {
     @Query("SELECT * FROM " + Person.TABLE)
     List<Person> loadAllPeople();
 
-    @Query("SELECT * FROM " + Person.TABLE + " WHERE gone == 0")
+    String SELECT_ACTIVE_PEOPLE = "SELECT * FROM " + Person.TABLE + " WHERE gone == 0";
+
+    @Query(SELECT_ACTIVE_PEOPLE)
+    LiveData<List<Person>> activePeople();
+
+    @Query(SELECT_ACTIVE_PEOPLE)
     List<Person> loadActivePeople();
 
     @Insert

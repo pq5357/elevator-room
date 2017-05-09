@@ -28,7 +28,7 @@ public class LobbyViewModel extends ViewModel {
 
     public LobbyViewModel() {
         database = MyApplication.getGameDatabase();
-        currentFloor = LiveDataRx.fromEternalPublisher(database.currentFloor());
+        currentFloor = database.floorDao().currentFloor();
         gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(FRAME_LENGTH, TimeUnit.MILLISECONDS));
     }
 
