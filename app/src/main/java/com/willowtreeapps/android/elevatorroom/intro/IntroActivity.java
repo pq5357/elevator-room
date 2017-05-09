@@ -12,6 +12,7 @@ import com.willowtreeapps.android.elevatorroom.R;
 import com.willowtreeapps.android.elevatorroom.RxUtil;
 import com.willowtreeapps.android.elevatorroom.elevator.ElevatorActivity;
 import com.willowtreeapps.android.elevatorroom.lobby.LobbyActivity;
+import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -82,6 +83,8 @@ public class IntroActivity extends LifecycleActivity {
         RxUtil.runInBg(() -> {
             MyApplication.getGameDatabase().floorDao().deleteAllFloors();
             MyApplication.getGameDatabase().personDao().deleteAllPeople();
+            // initialize to ground floor
+            MyApplication.getGameDatabase().floorDao().insertFloor(new VisitedFloor(0));
         });
     }
 

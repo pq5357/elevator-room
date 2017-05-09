@@ -97,13 +97,13 @@ public class ElevatorViewModel extends ViewModel {
     }
 
     public void writePressureToDatabase(LifecycleOwner owner) {
-        database.currentFloor().subscribe(floor -> currentFloor = floor);
+        database.floorDao().currentFloor().observe(owner, floor -> currentFloor = floor);
         barometer.observe(owner, pressureObserver);
         barometer.getGroundPressure().observe(owner, groundPressureObserver);
     }
 
     public LiveData<List<Person>> activePeople() {
-        return LiveDataRx.fromEternalPublisher(database.activePeople());
+        return database.personDao().activePeople();
     }
 
     static class Floor {

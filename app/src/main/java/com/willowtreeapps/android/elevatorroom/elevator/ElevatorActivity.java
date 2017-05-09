@@ -64,8 +64,6 @@ public class ElevatorActivity extends LifecycleActivity {
         });
     }
 
-
-
     private void updateDoors(boolean open) {
         float doorMovement = getResources().getDimension(R.dimen.elevator_door_movement);
         doorUpper.animate().translationY(open ? -doorMovement : 0)
