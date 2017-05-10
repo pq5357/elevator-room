@@ -4,8 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.ViewModelProviders;
-import android.graphics.Canvas;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,17 +14,10 @@ import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 
-import java.util.concurrent.TimeUnit;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.disposables.Disposables;
-import io.reactivex.schedulers.Schedulers;
 
 public class LobbyActivity extends LifecycleActivity {
 
@@ -34,7 +25,6 @@ public class LobbyActivity extends LifecycleActivity {
     private LobbyViewModel viewModel;
     private LobbyView view;
     private GameStateManager gameStateManager;
-    private Disposable intervalDisposable = Disposables.disposed();
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
@@ -57,6 +47,11 @@ public class LobbyActivity extends LifecycleActivity {
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.currentFloor.observe(this, this::updateForFloor);
         viewModel.activePeople().observe(this, view::updateForPeople);
+        viewModel.newPersonTimer.observe(this, aLong -> {
+            if (gameStateManager.gameState.getValue() == GameStateManager.GameState.PLAYING) {
+                viewModel.generatePerson();
+            }
+        });
     }
 
     @OnClick(android.R.id.content)
@@ -112,47 +107,8 @@ public class LobbyActivity extends LifecycleActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        // TODO migrate this to a LiveData in the view model
-        intervalDisposable.dispose();
-        intervalDisposable = Observable.interval(3, TimeUnit.SECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.computation())
-                .subscribe(aLong -> {
-                    if (gameStateManager.gameState.getValue() == GameStateManager.GameState.PLAYING) {
-                        viewModel.fakeNew();
-                    }
-                });
-//        person.setOnClickListener(v -> startDrag());
-    }
-
-    private boolean startDrag(View person) {
-        person.startDragAndDrop(null, getShadow(person), Boolean.TRUE,
-                View.DRAG_FLAG_GLOBAL | View.DRAG_FLAG_GLOBAL_URI_READ |
-                        View.DRAG_FLAG_GLOBAL_PERSISTABLE_URI_PERMISSION);
-        return true;
-    }
-
-    private View.DragShadowBuilder getShadow(View v) {
-        return new View.DragShadowBuilder() {
-            @Override
-            public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
-                outShadowSize.set(v.getWidth() / 8, v.getHeight() / 8);
-                outShadowTouchPoint.set(outShadowSize.x / 2, outShadowSize.y / 2);
-            }
-
-            @Override
-            public void onDrawShadow(Canvas canvas) {
-                v.draw(canvas);
-            }
-        };
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        intervalDisposable.dispose();
         if (unbinder != null) {
             unbinder.unbind();
         }
