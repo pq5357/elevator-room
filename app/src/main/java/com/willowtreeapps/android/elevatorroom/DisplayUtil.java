@@ -20,7 +20,7 @@ public class DisplayUtil {
     public static boolean isMultiWindowPrimary(View view) {
         Rect outRect = new Rect();
         view.getWindowVisibleDisplayFrame(outRect);
-        switch (MyApplication.getContext().getResources().getConfiguration().orientation) {
+        switch (view.getResources().getConfiguration().orientation) {
             case Configuration.ORIENTATION_LANDSCAPE:
                 float screenHeight = outRect.bottom - outRect.top;
                 float widthLeft = outRect.left;

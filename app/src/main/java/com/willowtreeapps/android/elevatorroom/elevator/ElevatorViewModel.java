@@ -1,12 +1,15 @@
 package com.willowtreeapps.android.elevatorroom.elevator;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
+import android.text.format.DateUtils;
 
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.RxUtil;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
 import com.willowtreeapps.android.elevatorroom.livedata.BarometerManager;
 import com.willowtreeapps.android.elevatorroom.livedata.LiveDataRx;
 import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
@@ -17,17 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 import timber.log.Timber;
 
 import static com.willowtreeapps.android.elevatorroom.GameStateManager.FRAME_LENGTH;
 
-public class ElevatorViewModel extends ViewModel {
+public class ElevatorViewModel extends AndroidViewModel {
 
     public static final int TOTAL_FLOORS = 4;
     static final float FLOOR_OVERLAP = 0.2f; // 20% overlap
-    public final BarometerManager barometer;
-    private GameDatabase database;
+    @Inject BarometerManager barometer;
+    @Inject GameDatabase database;
     public final LiveData<Long> gameLoopTimer;
     public final LiveData<Integer> currentFloorLive;
     private VisitedFloor currentFloor;
@@ -81,9 +86,13 @@ public class ElevatorViewModel extends ViewModel {
         }
     };
 
-    public ElevatorViewModel() {
-        barometer = BarometerManager.getInstance();
-        database = MyApplication.getGameDatabase();
+    public ElevatorViewModel(Application application) {
+        this(application, MyApplication.getAppComponent(application.getApplicationContext()));
+    }
+
+    public ElevatorViewModel(Application application, AppComponent appComponent) {
+        super(application);
+        appComponent.inject(this);
         gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(FRAME_LENGTH, TimeUnit.MILLISECONDS));
         currentFloorLive = LiveDataRx.fromEternalPublisher(database.currentFloor().map(VisitedFloor::getFloor));
     }
@@ -100,6 +109,15 @@ public class ElevatorViewModel extends ViewModel {
         database.floorDao().currentFloor().observe(owner, floor -> currentFloor = floor);
         barometer.observe(owner, pressureObserver);
         barometer.getGroundPressure().observe(owner, groundPressureObserver);
+    }
+
+    public void generateFirstPerson() {
+        int goal = (int) (Math.random() * (ElevatorViewModel.TOTAL_FLOORS - 1)) + 1;
+        final Person person = new Person(
+                System.currentTimeMillis() + DateUtils.SECOND_IN_MILLIS * 15,
+                goal, 0
+        );
+        RxUtil.runInBg(() -> database.personDao().newPerson(person));
     }
 
     public LiveData<List<Person>> activePeople() {

@@ -12,7 +12,10 @@ import android.widget.TextView;
 import com.willowtreeapps.android.elevatorroom.GameStateManager;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,13 +24,15 @@ import butterknife.Unbinder;
 
 public class LobbyActivity extends LifecycleActivity {
 
+    private AppComponent appComponent;
+    @Inject GameStateManager gameStateManager;
     private Unbinder unbinder;
     private LobbyViewModel viewModel;
     private LobbyView view;
-    private GameStateManager gameStateManager;
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
+    @BindView(R.id.score) TextView scoreLabel;
     @BindView(R.id.playfield) ViewGroup playfield;
     @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.door_lower) View doorLower;
@@ -36,20 +41,24 @@ public class LobbyActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
-        gameStateManager = MyApplication.getGameStateManager();
+        appComponent = MyApplication.getAppComponent(this);
+        appComponent.inject(this);
         unbinder = ButterKnife.bind(this);
         gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
+        gameStateManager.currentScore.observe(this, integer -> {
+            scoreLabel.setText(getString(R.string.current_score, integer));
+        });
 
-        view = new LobbyView(this);
+        view = new LobbyView(appComponent, this);
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.currentFloor.observe(this, this::updateForFloor);
         viewModel.activePeople().observe(this, view::updateForPeople);
         viewModel.newPersonTimer.observe(this, aLong -> {
             if (gameStateManager.gameState.getValue() == GameStateManager.GameState.PLAYING) {
-                viewModel.generatePerson();
+                viewModel.generateRandomPerson();
             }
         });
     }

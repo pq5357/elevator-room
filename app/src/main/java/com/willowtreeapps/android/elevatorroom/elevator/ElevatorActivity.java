@@ -14,6 +14,9 @@ import android.widget.TextView;
 import com.willowtreeapps.android.elevatorroom.GameStateManager;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,10 +28,11 @@ import static com.willowtreeapps.android.elevatorroom.GameStateManager.GameState
 
 public class ElevatorActivity extends LifecycleActivity {
 
+    private AppComponent appComponent;
+    @Inject GameStateManager gameStateManager;
     private ElevatorViewModel viewModel;
     private ElevatorView view;
     private Unbinder unbinder;
-    private GameStateManager gameStateManager;
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView messageText;
@@ -41,14 +45,15 @@ public class ElevatorActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elevator);
-        gameStateManager = MyApplication.getGameStateManager();
+        appComponent = MyApplication.getAppComponent(this);
+        appComponent.inject(this);
         unbinder = ButterKnife.bind(this);
         gameStateManager.multiWindowDividerSize.setRightView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
         viewModel = ViewModelProviders.of(this).get(ElevatorViewModel.class);
-        view = new ElevatorView(this, viewModel.currentFloorLive);
+        view = new ElevatorView(appComponent, this, viewModel.currentFloorLive);
         viewModel.writePressureToDatabase(this);
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.activePeople().observe(this, view::updateForPeople);
@@ -57,6 +62,7 @@ public class ElevatorActivity extends LifecycleActivity {
         viewModel.barometer.getGroundPressure().observe(this, aFloat -> {
             if (gameStateManager.gameState.getValue() == CALIBRATION) {
                 gameStateManager.gameState.setValue(PLAYING);
+                viewModel.generateFirstPerson();
             }
         });
         viewModel.getCurrentPressurePercentage().observe(this, integer -> {

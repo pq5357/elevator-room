@@ -2,6 +2,7 @@
     <string name="app_name">Elevator Room</string>
     <string name="lobby">Lobby</string>
     <string name="floor_n">Floor %1$s</string>
+    <string name="current_score">Current score: %1$d</string>
     <string name="elevator">Elevator</string>
     <string name="start">Start</string>
     <string name="enter_multiwindow_mode_and_press_start">Enter MultiWindow Mode and Press Start</string>

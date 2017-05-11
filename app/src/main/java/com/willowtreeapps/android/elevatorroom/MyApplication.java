@@ -1,10 +1,10 @@
 package com.willowtreeapps.android.elevatorroom;
 
 import android.app.Application;
-import android.arch.persistence.room.Room;
 import android.content.Context;
 
-import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
+import com.willowtreeapps.android.elevatorroom.dagger.DaggerAppComponent;
 
 import timber.log.Timber;
 
@@ -14,36 +14,19 @@ import timber.log.Timber;
 
 public class MyApplication extends Application {
 
-    private static MyApplication sApplication;
-    private GameDatabase gameDatabase;
-    private GameStateManager gameStateManager;
-
-    public static Context getContext() {
-        return sApplication;
-    }
-
-    public static GameDatabase getGameDatabase() {
-        return sApplication.gameDatabase;
-    }
-
-    public static GameStateManager getGameStateManager() {
-        return sApplication.gameStateManager;
-    }
+    private AppComponent appComponent;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        sApplication = this;
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-        setupDatabases();
-        gameStateManager = new GameStateManager();
+        appComponent = DaggerAppComponent.builder().context(this).build();
     }
 
-    private void setupDatabases() {
-        gameDatabase = Room.databaseBuilder(this, GameDatabase.class, "game.db")
-                .build();
+    public static AppComponent getAppComponent(Context context) {
+        return ((MyApplication) context.getApplicationContext()).appComponent;
     }
 
 }

@@ -11,7 +11,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.text.TextUtils;
 
-import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.RxUtil;
 
 import java.util.Random;
@@ -164,7 +163,7 @@ public class Person {
         }
     }
 
-    protected boolean isGone() {
+    public boolean isGone() {
         return gone;
     }
 
@@ -199,12 +198,12 @@ public class Person {
         return updated;
     }
 
-    public void save() {
+    public void save(final GameDatabase database) {
         if (!dirty) {
             return;
         }
         dirty = false;
-        RxUtil.runInBg(() -> MyApplication.getGameDatabase().personDao().updatePerson(this));
+        RxUtil.runInBg(() -> database.personDao().updatePerson(this));
     }
 
     public static class StateConverter {
