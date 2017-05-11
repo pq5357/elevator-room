@@ -55,7 +55,7 @@ public class LobbyViewModel extends AndroidViewModel {
         );
     }
 
-    public void generatePerson() {
+    public void generateRandomPerson() {
         int goal = (int) (Math.random() * ElevatorViewModel.TOTAL_FLOORS);
         int start = (int) (goal + Math.random() * (ElevatorViewModel.TOTAL_FLOORS - 1) + 1) % ElevatorViewModel.TOTAL_FLOORS;
         final Person person = new Person(

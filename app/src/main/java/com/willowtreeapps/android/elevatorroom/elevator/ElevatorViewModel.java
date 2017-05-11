@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.text.format.DateUtils;
 
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.RxUtil;
@@ -108,6 +109,15 @@ public class ElevatorViewModel extends AndroidViewModel {
         database.floorDao().currentFloor().observe(owner, floor -> currentFloor = floor);
         barometer.observe(owner, pressureObserver);
         barometer.getGroundPressure().observe(owner, groundPressureObserver);
+    }
+
+    public void generateFirstPerson() {
+        int goal = (int) (Math.random() * (ElevatorViewModel.TOTAL_FLOORS - 1)) + 1;
+        final Person person = new Person(
+                System.currentTimeMillis() + DateUtils.SECOND_IN_MILLIS * 15,
+                goal, 0
+        );
+        RxUtil.runInBg(() -> database.personDao().newPerson(person));
     }
 
     public LiveData<List<Person>> activePeople() {
