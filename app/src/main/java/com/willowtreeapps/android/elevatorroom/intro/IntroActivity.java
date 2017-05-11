@@ -10,11 +10,15 @@ import com.willowtreeapps.android.elevatorroom.DisplayUtil;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
 import com.willowtreeapps.android.elevatorroom.RxUtil;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
 import com.willowtreeapps.android.elevatorroom.elevator.ElevatorActivity;
 import com.willowtreeapps.android.elevatorroom.lobby.LobbyActivity;
+import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,6 +33,8 @@ public class IntroActivity extends LifecycleActivity {
 
     @BindView(android.R.id.content) View rootView;
 
+    private AppComponent appComponent;
+    @Inject GameDatabase gameDatabase;
     Unbinder unbinder;
     Disposable disposable = Disposables.disposed();
 
@@ -36,6 +42,8 @@ public class IntroActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
+        appComponent = MyApplication.getAppComponent(this);
+        appComponent.inject(this);
         unbinder = ButterKnife.bind(this);
         checkMultiWindow();
     }
@@ -81,10 +89,10 @@ public class IntroActivity extends LifecycleActivity {
     void clearPreviousData() {
         disposable.dispose();
         RxUtil.runInBg(() -> {
-            MyApplication.getGameDatabase().floorDao().deleteAllFloors();
-            MyApplication.getGameDatabase().personDao().deleteAllPeople();
+            gameDatabase.floorDao().deleteAllFloors();
+            gameDatabase.personDao().deleteAllPeople();
             // initialize to ground floor
-            MyApplication.getGameDatabase().floorDao().insertFloor(new VisitedFloor(0));
+            gameDatabase.floorDao().insertFloor(new VisitedFloor(0));
         });
     }
 

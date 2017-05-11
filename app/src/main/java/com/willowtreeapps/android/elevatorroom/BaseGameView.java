@@ -8,11 +8,14 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.view.ViewGroup;
 
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
 import com.willowtreeapps.android.elevatorroom.livedata.DistinctLiveData;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.widget.PersonWidget;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,16 +27,18 @@ import butterknife.Unbinder;
 
 public abstract class BaseGameView implements LifecycleObserver {
 
+    @Inject protected GameStateManager gameStateManager;
+    protected final AppComponent appComponent;
     protected final Context context;
-    protected final GameStateManager gameStateManager;
     private final Unbinder unbinder;
     public final MutableLiveData<Boolean> doorsOpen = new DistinctLiveData<>();
 
     @BindView(R.id.persons_container) ViewGroup personsContainer;
 
-    public BaseGameView(LifecycleActivity activity) {
+    public BaseGameView(AppComponent appComponent, LifecycleActivity activity) {
+        this.appComponent = appComponent;
+        appComponent.inject(this);
         context = activity;
-        gameStateManager = MyApplication.getGameStateManager();
         unbinder = ButterKnife.bind(this, activity);
         activity.getLifecycle().addObserver(this);
     }

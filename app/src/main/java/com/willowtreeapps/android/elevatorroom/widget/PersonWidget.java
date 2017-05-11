@@ -17,7 +17,11 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
+import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +44,7 @@ public class PersonWidget extends FrameLayout {
     @BindView(R.id.background) View background;
     @BindView(R.id.progress_bar) ProgressBar progressBar;
 
+    @Inject GameDatabase gameDatabase;
     private final float preferredX = centeredRandom() * 0.4f + 0.15f; // where this person will choose to stand while waiting in the elevator
     private final float preferredY = centeredRandom() * 0.6f + 0.2f; // somewhere in the center of the available space
     private Person person;
@@ -71,7 +76,8 @@ public class PersonWidget extends FrameLayout {
         return this;
     }
 
-    public PersonWidget init(boolean belongsToLobby, LiveData<Integer> multiWindowDividerSize, LiveData<Integer> currentFloor, LiveData<Boolean> doorsOpen) {
+    public PersonWidget init(AppComponent appComponent, boolean belongsToLobby, LiveData<Integer> multiWindowDividerSize, LiveData<Integer> currentFloor, LiveData<Boolean> doorsOpen) {
+        appComponent.inject(this);
         this.belongsToLobby = belongsToLobby;
         this.multiWindowDividerSize = multiWindowDividerSize;
         this.currentFloor = currentFloor;
@@ -111,7 +117,7 @@ public class PersonWidget extends FrameLayout {
                 updateInElevator();
             }
         }
-        person.save();
+        person.save(gameDatabase);
     }
 
     private void updateInLobby() {

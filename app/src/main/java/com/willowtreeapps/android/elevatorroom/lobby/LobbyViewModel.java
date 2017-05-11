@@ -1,11 +1,13 @@
 package com.willowtreeapps.android.elevatorroom.lobby;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
 import android.text.format.DateUtils;
 
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.RxUtil;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
 import com.willowtreeapps.android.elevatorroom.elevator.ElevatorViewModel;
 import com.willowtreeapps.android.elevatorroom.livedata.LiveDataRx;
 import com.willowtreeapps.android.elevatorroom.persistence.GameDatabase;
@@ -15,20 +17,27 @@ import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import io.reactivex.Flowable;
 import io.reactivex.internal.operators.flowable.FlowableOnBackpressureDrop;
 
 import static com.willowtreeapps.android.elevatorroom.GameStateManager.FRAME_LENGTH;
 
-public class LobbyViewModel extends ViewModel {
+public class LobbyViewModel extends AndroidViewModel {
 
-    private final GameDatabase database;
+    @Inject GameDatabase database;
     public final LiveData<Long> gameLoopTimer;
     public final LiveData<Long> newPersonTimer;
     public final LiveData<VisitedFloor> currentFloor;
 
-    public LobbyViewModel() {
-        database = MyApplication.getGameDatabase();
+    public LobbyViewModel(Application application) {
+        this(application, MyApplication.getAppComponent(application.getApplicationContext()));
+    }
+
+    public LobbyViewModel(Application application, AppComponent appComponent) {
+        super(application);
+        appComponent.inject(this);
         currentFloor = database.floorDao().currentFloor();
         gameLoopTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(FRAME_LENGTH, TimeUnit.MILLISECONDS));
         newPersonTimer = LiveDataRx.fromEternalPublisher(FlowableOnBackpressureDrop.interval(10, TimeUnit.SECONDS));

@@ -12,7 +12,10 @@ import android.widget.TextView;
 import com.willowtreeapps.android.elevatorroom.GameStateManager;
 import com.willowtreeapps.android.elevatorroom.MyApplication;
 import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,10 +24,11 @@ import butterknife.Unbinder;
 
 public class LobbyActivity extends LifecycleActivity {
 
+    private AppComponent appComponent;
+    @Inject GameStateManager gameStateManager;
     private Unbinder unbinder;
     private LobbyViewModel viewModel;
     private LobbyView view;
-    private GameStateManager gameStateManager;
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
@@ -36,13 +40,14 @@ public class LobbyActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
-        gameStateManager = MyApplication.getGameStateManager();
+        appComponent = MyApplication.getAppComponent(this);
+        appComponent.inject(this);
         unbinder = ButterKnife.bind(this);
         gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
 
-        view = new LobbyView(this);
+        view = new LobbyView(appComponent, this);
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
         viewModel.gameLoopTimer.observe(this, view::updateWidgets);
         viewModel.currentFloor.observe(this, this::updateForFloor);

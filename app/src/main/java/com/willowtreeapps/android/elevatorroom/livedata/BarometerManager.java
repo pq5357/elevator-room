@@ -2,12 +2,11 @@ package com.willowtreeapps.android.elevatorroom.livedata;
 
 import android.app.Service;
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
-import com.willowtreeapps.android.elevatorroom.MyApplication;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,21 +15,13 @@ import java.util.Queue;
 
 public class BarometerManager extends LiveData<Float> {
 
-    private static BarometerManager sInstance;
     private final SensorManager sensorManager;
     private final GroundPressure pressureListener = new GroundPressure();
 
     private final Queue<Float> pressures = new LinkedList<>();
 
-    private BarometerManager() {
-        sensorManager = (SensorManager) MyApplication.getContext().getSystemService(Service.SENSOR_SERVICE);
-    }
-
-    public static BarometerManager getInstance() {
-        if (sInstance == null) {
-            sInstance = new BarometerManager();
-        }
-        return sInstance;
+    public BarometerManager(Context context) {
+        sensorManager = (SensorManager) context.getSystemService(Service.SENSOR_SERVICE);
     }
 
     public LiveData<Float> getGroundPressure() {
