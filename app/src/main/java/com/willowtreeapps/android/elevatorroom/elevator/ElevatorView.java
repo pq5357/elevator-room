@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.willowtreeapps.android.elevatorroom.BaseGameView;
 import com.willowtreeapps.android.elevatorroom.R;
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
 import com.willowtreeapps.android.elevatorroom.livedata.LiveDataRx;
 import com.willowtreeapps.android.elevatorroom.persistence.Person;
 import com.willowtreeapps.android.elevatorroom.persistence.VisitedFloor;
@@ -35,8 +36,8 @@ public class ElevatorView extends BaseGameView {
     private final List<TextView> floorIndicators = new ArrayList<>();
     private final Set<Integer> requestedFloors = new TreeSet<>();
 
-    public ElevatorView(LifecycleActivity activity, LiveData<Integer> currentFloor) {
-        super(activity);
+    public ElevatorView(AppComponent appComponent, LifecycleActivity activity, LiveData<Integer> currentFloor) {
+        super(appComponent, activity);
         this.currentFloor = currentFloor;
         setupViews();
         this.currentFloor.observe(activity, this::setCurrentFloor);
@@ -59,7 +60,7 @@ public class ElevatorView extends BaseGameView {
 
     @Override
     protected PersonWidget createNewPersonWidget() {
-        return new PersonWidget(context).init(false,
+        return new PersonWidget(context).init(appComponent, false,
                 gameStateManager.multiWindowDividerSize, currentFloor, doorsOpen);
     }
 

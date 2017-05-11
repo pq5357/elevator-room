@@ -87,7 +87,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:text=""/>
+                android:text=""
+                android:textColor="@color/elevator_floor_font"/>
 
             <Button
                 android:id="@+id/btn_start"
