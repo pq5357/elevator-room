@@ -32,6 +32,7 @@ public class LobbyActivity extends LifecycleActivity {
 
     @BindView(android.R.id.content) View rootView;
     @BindView(R.id.textview) TextView label;
+    @BindView(R.id.score) TextView scoreLabel;
     @BindView(R.id.playfield) ViewGroup playfield;
     @BindView(R.id.door_upper) View doorUpper;
     @BindView(R.id.door_lower) View doorLower;
@@ -46,6 +47,9 @@ public class LobbyActivity extends LifecycleActivity {
         gameStateManager.multiWindowDividerSize.setLeftView(this, rootView);
         gameStateManager.gameState.observe(this, this::onApplyState);
         gameStateManager.doorsOpen.observe(this, this::updateDoors);
+        gameStateManager.currentScore.observe(this, integer -> {
+            scoreLabel.setText(getString(R.string.current_score, integer));
+        });
 
         view = new LobbyView(appComponent, this);
         viewModel = ViewModelProviders.of(this).get(LobbyViewModel.class);
@@ -54,7 +58,7 @@ public class LobbyActivity extends LifecycleActivity {
         viewModel.activePeople().observe(this, view::updateForPeople);
         viewModel.newPersonTimer.observe(this, aLong -> {
             if (gameStateManager.gameState.getValue() == GameStateManager.GameState.PLAYING) {
-                viewModel.generatePerson();
+                viewModel.generateRandomPerson();
             }
         });
     }

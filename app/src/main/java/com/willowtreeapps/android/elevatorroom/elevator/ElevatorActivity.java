@@ -62,6 +62,7 @@ public class ElevatorActivity extends LifecycleActivity {
         viewModel.barometer.getGroundPressure().observe(this, aFloat -> {
             if (gameStateManager.gameState.getValue() == CALIBRATION) {
                 gameStateManager.gameState.setValue(PLAYING);
+                viewModel.generateFirstPerson();
             }
         });
         viewModel.getCurrentPressurePercentage().observe(this, integer -> {

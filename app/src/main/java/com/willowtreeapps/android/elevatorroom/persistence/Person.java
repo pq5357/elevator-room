@@ -163,7 +163,7 @@ public class Person {
         }
     }
 
-    protected boolean isGone() {
+    public boolean isGone() {
         return gone;
     }
 
