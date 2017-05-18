@@ -1,4 +1,4 @@
-# ELevator Room
+# Elevator Room
 
 ## What is this for?
 This is a demo project for Google's architectural libraries released at Google IO 2017 
