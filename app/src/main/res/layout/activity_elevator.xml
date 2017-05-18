@@ -1,14 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Hello World!"/>
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tool_bar_height"
+        android:background="@drawable/shiny_gold"
+        android:elevation="4dp"
+        android:paddingTop="@dimen/status_bar_height">
 
-</FrameLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/elevator"/>
+
+        <ProgressBar
+            android:id="@+id/pressure_indicator"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:indeterminate="false"
+            android:max="100"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left">
+
+            <Space
+                android:id="@+id/elevator_center"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_centerInParent="true"/>
+
+            <View
+                android:id="@+id/door_upper"
+                android:layout_width="@dimen/elevator_doors_width"
+                android:layout_height="@dimen/elevator_door_size"
+                android:layout_above="@id/elevator_center"
+                android:background="@color/elevator_doors"/>
+
+            <View
+                android:layout_width="@dimen/elevator_panel_width"
+                android:layout_height="@dimen/elevator_panel_size"
+                android:layout_below="@id/elevator_center"
+                android:layout_marginTop="@dimen/elevator_panel_offset"
+                android:background="@color/elevator_panel"/>
+
+        </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/playfield"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/persons_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/messaging"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:text=""
+                android:textColor="@color/elevator_floor_font"/>
+
+            <Button
+                android:id="@+id/btn_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""/>
+
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

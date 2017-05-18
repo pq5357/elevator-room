@@ -3,6 +3,9 @@ package com.willowtreeapps.android.elevatorroom;
 import android.app.Application;
 import android.content.Context;
 
+import com.willowtreeapps.android.elevatorroom.dagger.AppComponent;
+import com.willowtreeapps.android.elevatorroom.dagger.DaggerAppComponent;
+
 import timber.log.Timber;
 
 /**
@@ -11,19 +14,19 @@ import timber.log.Timber;
 
 public class MyApplication extends Application {
 
-    private static MyApplication sApplication;
-
-    public static Context getContext() {
-        return sApplication;
-    }
+    private AppComponent appComponent;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        sApplication = this;
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
+        appComponent = DaggerAppComponent.builder().context(this).build();
+    }
+
+    public static AppComponent getAppComponent(Context context) {
+        return ((MyApplication) context.getApplicationContext()).appComponent;
     }
 
 }

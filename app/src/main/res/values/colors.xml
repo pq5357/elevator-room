@@ -3,4 +3,15 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="elevator_floor_dim">#B59140</color>
+    <color name="elevator_floor_lighted">#EFDC70</color>
+    <color name="elevator_floor_border">#A36E2A</color>
+    <color name="elevator_floor_font">#4D1C09</color>
+    <color name="lobby_wall">#8b572a</color>
+    <color name="elevator_doors">#d9b860</color>
+    <color name="elevator_panel">#666777</color>
+    <color name="green">#00E676</color>
+    <color name="orange">#F4511E</color>
 </resources>

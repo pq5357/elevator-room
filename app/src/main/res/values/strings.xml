@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">Elevator Room</string>
     <string name="lobby">Lobby</string>
-    <string name="floor_n">Floor %1$d</string>
+    <string name="floor_n">Floor %1$s</string>
+    <string name="current_score">Current score: %1$d</string>
     <string name="elevator">Elevator</string>
+    <string name="start">Start</string>
+    <string name="enter_multiwindow_mode_and_press_start">Enter MultiWindow Mode and Press Start</string>
+    <string name="start_game_message">Visitors are arriving on the ground floor.\nPlease place your phone on the floor.</string>
+    <string name="tap_lobby_to_start">Tap on the Lobby to welcome your first visitor.</string>
+    <string name="start_the_day">start the day</string>
+    <string name="press_and_hold_to_enter_split_screen_mode">Press and hold to enter split screen mode.</string>
+
 </resources>
